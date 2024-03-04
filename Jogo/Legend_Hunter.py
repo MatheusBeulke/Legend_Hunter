@@ -6,7 +6,7 @@ import BDP
 
 
 def Connecte():
-    log = 0
+    log = 1
     banco = sqlite3.connect('Banco_Dados.db')
     cursor = banco.cursor()
     if log == 0:
@@ -238,7 +238,7 @@ def inicio():
                     for pos, i in enumerate(Fragmentos):
                         fragmentos = Fragmentos[0][pos] - 1
                         if fragmentos >= 1:
-                            print(f'{i} = {fragmentos}')
+                            print(f'{BDP.Fragmentos[pos]} = {fragmentos}')
                     sleep(1)
 
                 elif tecla1 in '4':
@@ -270,7 +270,36 @@ def Mapa(mapa):
         Vida = cursor.fetchone()
 
         if BDP.mortejogador == 1:
+            cursor.execute('SELECT QtdeExp FROM Jogador')
+            xp = cursor.fetchone()
+            xp = xp[0]
+
+            cursor.execute('SELECT Level FROM Jogador')
+            lv = cursor.fetchone()
+            lv = lv[0]
+
+            if xp >= BDP.perdaexp:
+                perdaxp = xp - BDP.perdaexp
+                qtdeperdaxp = BDP.perdaexp
+            elif xp == 0:
+                perdaxp = 0
+                qtdeperdaxp = perdaxp
+            else:
+                perdaxp = 2 * lv
+                qtdeperdaxp = perdaxp
+                if xp >= perdaxp:
+                    perdaxp = xp - perdaxp
+
+                else:
+                    perdaxp = 1
+                    qtdeperdaxp = perdaxp
+
+            print(f'Você perdeu {qtdeperdaxp} XP')
+            sleep(1)
+            cursor.execute("UPDATE Jogador SET QtdeExp = '" + str(perdaxp) + "' WHERE '" + str(xp) + "'")
+
             BDP.mortejogador = 0
+            BDP.perdaexp = 0
             cursor.execute("UPDATE Jogador SET Vida = '" + str(HP[0]) + "' WHERE '" + str(Vida[0]) + "'")
             banco.commit()
             break
@@ -355,20 +384,14 @@ def Mapa(mapa):
         if tecla2 in 'C':
             break
 
-        indanimal, lvanimal, HPanimal, Danoanimal, expanimal, dinheiroanimal, nomeanimal, Lvjogador = \
+        indanimal, lvanimal, HPanimal, Danoanimal, expanimal, dinheiroanimal, nomeanimal, Lvjogador, defesa = \
             infobatalha(mapa, tecla2)
 
         print(f'Você encontrou um(a): {nomeanimal}')
         sleep(3)
         print('-=' * 20)
 
-        cursor.execute('SELECT Defese FROM Atributos')
-        da = cursor.fetchone()
-        cursor.execute('SELECT Defese FROM Habilidades')
-        dh = cursor.fetchone()
-        defesa = da[0] + dh[0]
-
-        print(f'Mob: {nomeanimal} Lv.{lvanimal:.0f} \nHP: {HPanimal} \nDano: {Danoanimal - defesa}'
+        print(f'Mob: {nomeanimal} Lv.{lvanimal:.0f} \nHP: {HPanimal} \nDano: {Danoanimal}'
               f' \nDinheiro: {dinheiroanimal} \nExp: {expanimal}')
         print('-=' * 20)
         sleep(3)
@@ -419,10 +442,9 @@ def Mapa(mapa):
                 if i > 1:
                     print(f'Você encontrou outro(a) {nomeanimal}')
                     sleep(2)
-                batalha(indanimal, nomeanimal, HPanimal, Danoanimal, dinheiroanimal, expanimal, mapa,
-                        atack, defesa, HP)
-                indanimal, lvanimal, HPanimal, Danoanimal, expanimal, dinheiroanimal, nomeanimal, Lvjogador = (
-                    infobatalha(mapa, tecla2))
+                batalha(indanimal, nomeanimal, HPanimal, Danoanimal, dinheiroanimal, expanimal, mapa, atack, HP)
+                indanimal, lvanimal, HPanimal, Danoanimal, expanimal, dinheiroanimal, nomeanimal, Lvjogador, defesa =\
+                    (infobatalha(mapa, tecla2))
 
                 if BDP.mortejogador == 1:
                     break
@@ -431,7 +453,7 @@ def Mapa(mapa):
             pass
 
 
-def batalha(indanimal, nomeanimal, HPanimal, Danoanimal, dinheiroanimal, expanimal, mapa, atack, defese, HP):
+def batalha(indanimal, nomeanimal, HPanimal, Danoanimal, dinheiroanimal, expanimal, mapa, atack, HP):
     banco = sqlite3.connect('Banco_Dados.db')
     cursor = banco.cursor()
 
@@ -614,20 +636,17 @@ def batalha(indanimal, nomeanimal, HPanimal, Danoanimal, dinheiroanimal, expanim
         print(f'{nomeanimal}: {HPanimal}/{Vidaanimal}HP')
         print('-=' * 10)
         sleep(5)
-        if defese < Danoanimal:
-            atackanimal = Danoanimal - defese
-        else:
-            atackanimal = 0
 
         cursor.execute('SELECT Vida FROM Jogador')
         Vida = cursor.fetchone()
-        vida = Vida[0] - atackanimal
+        vida = Vida[0] - Danoanimal
         cursor.execute("UPDATE Jogador SET Vida = '" + str(vida) + "' WHERE '" + str(Vida[0]) + "' ")
-        print('{}: \033[32m{}\033[m de atack'.format(nomeanimal, atackanimal))
+        print('{}: \033[32m{}\033[m de atack'.format(nomeanimal, Danoanimal))
         if vida <= 0:
             print(f'{nomeanimal} matou Jogador')
             sleep(5)
             BDP.mortejogador = 1
+            BDP.perdaexp = expanimal
             banco.commit()
             break
         print(f'Jogador: {vida}/{HP[0]}')
@@ -827,19 +846,28 @@ def infobatalha(mapa, tecla2):
 
         cursor.execute('SELECT * FROM Fragmentos')
         defesaelementar = cursor.fetchall()
-        defesaelementar = defesaelementar[0][indanimal] - 1
+        defesaelementar = defesaelementar[0][0] - 1
+
+        cursor.execute('SELECT Defese FROM Atributos')
+        da = cursor.fetchone()
+        cursor.execute('SELECT Defese FROM Habilidades')
+        dh = cursor.fetchone()
+        defesa = da[0] + dh[0]
 
         diferencaelementar = danoelementar - defesaelementar
         if diferencaelementar < 0:
             diferencaelementar = 0
         diferencalv = lvanimal - Lvjogador
         HPanimal = hpanimal
-        Danoanimal = danoanimal + diferencaelementar
+        Danoanimal = danoanimal + diferencaelementar - defesa
         if Lvjogador >= lvanimal or diferencalv <= 0:
             pass
         else:
             HPanimal = hpanimal + diferencalv
-            Danoanimal = danoanimal + diferencalv + diferencaelementar
+            Danoanimal = danoanimal + diferencalv + diferencaelementar - defesa
+
+        if Danoanimal < 0:
+            Danoanimal = 0
 
         cursor.execute('SELECT Exp FROM MobsColinaVerde')
         expanimal = cursor.fetchall()
@@ -848,7 +876,7 @@ def infobatalha(mapa, tecla2):
         cursor.execute('SELECT Dinheiro FROM MobsColinaVerde')
         dinheiroanimal = cursor.fetchall()
         dinheiroanimal = dinheiroanimal[indanimal][0]
-        return indanimal, lvanimal, HPanimal, Danoanimal, expanimal, dinheiroanimal, nomeanimal, Lvjogador
+        return indanimal, lvanimal, HPanimal, Danoanimal, expanimal, dinheiroanimal, nomeanimal, Lvjogador, defesa
 
     elif mapa in 'Deserto':
         indanimal = int(tecla2)
@@ -878,20 +906,28 @@ def infobatalha(mapa, tecla2):
 
         cursor.execute('SELECT * FROM Fragmentos')
         defesaelementar = cursor.fetchall()
-        defesaelementar = defesaelementar[0][indanimal] - 1
+        defesaelementar = defesaelementar[0][1] - 1
+
+        cursor.execute('SELECT Defese FROM Atributos')
+        da = cursor.fetchone()
+        cursor.execute('SELECT Defese FROM Habilidades')
+        dh = cursor.fetchone()
+        defesa = da[0] + dh[0]
 
         diferencaelementar = danoelementar - defesaelementar
         if diferencaelementar < 0:
             diferencaelementar = 0
-
         diferencalv = lvanimal - Lvjogador
         HPanimal = hpanimal
-        Danoanimal = danoanimal + diferencaelementar
+        Danoanimal = danoanimal + diferencaelementar - defesa
         if Lvjogador >= lvanimal or diferencalv <= 0:
             pass
         else:
             HPanimal = hpanimal + diferencalv
-            Danoanimal = danoanimal + diferencalv + diferencaelementar
+            Danoanimal = danoanimal + diferencalv + diferencaelementar - defesa
+
+        if Danoanimal < 0:
+            Danoanimal = 0
 
         cursor.execute('SELECT Exp FROM MobsDeserto')
         expanimal = cursor.fetchall()
@@ -900,7 +936,7 @@ def infobatalha(mapa, tecla2):
         cursor.execute('SELECT Dinheiro FROM MobsDeserto')
         dinheiroanimal = cursor.fetchall()
         dinheiroanimal = dinheiroanimal[indanimal][0]
-        return indanimal, lvanimal, HPanimal, Danoanimal, expanimal, dinheiroanimal, nomeanimal, Lvjogador
+        return indanimal, lvanimal, HPanimal, Danoanimal, expanimal, dinheiroanimal, nomeanimal, Lvjogador, defesa
 
     elif mapa in 'Caverna de Mineração':
         indanimal = int(tecla2)
@@ -930,20 +966,28 @@ def infobatalha(mapa, tecla2):
 
         cursor.execute('SELECT * FROM Fragmentos')
         defesaelementar = cursor.fetchall()
-        defesaelementar = defesaelementar[0][indanimal]
+        defesaelementar = defesaelementar[0][2]
+
+        cursor.execute('SELECT Defese FROM Atributos')
+        da = cursor.fetchone()
+        cursor.execute('SELECT Defese FROM Habilidades')
+        dh = cursor.fetchone()
+        defesa = da[0] + dh[0]
 
         diferencaelementar = danoelementar - defesaelementar
         if diferencaelementar < 0:
             diferencaelementar = 0
-
         diferencalv = lvanimal - Lvjogador
         HPanimal = hpanimal
-        Danoanimal = danoanimal + diferencaelementar
+        Danoanimal = danoanimal + diferencaelementar - defesa
         if Lvjogador >= lvanimal or diferencalv <= 0:
             pass
         else:
             HPanimal = hpanimal + diferencalv
-            Danoanimal = danoanimal + diferencalv + diferencaelementar
+            Danoanimal = danoanimal + diferencalv + diferencaelementar - defesa
+
+        if Danoanimal < 0:
+            Danoanimal = 0
 
         cursor.execute('SELECT Exp FROM MobsCavernaMinerção')
         expanimal = cursor.fetchall()
@@ -952,7 +996,7 @@ def infobatalha(mapa, tecla2):
         cursor.execute('SELECT Dinheiro FROM MobsCavernaMinerção')
         dinheiroanimal = cursor.fetchall()
         dinheiroanimal = dinheiroanimal[indanimal][0]
-        return indanimal, lvanimal, HPanimal, Danoanimal, expanimal, dinheiroanimal, nomeanimal, Lvjogador
+        return indanimal, lvanimal, HPanimal, Danoanimal, expanimal, dinheiroanimal, nomeanimal, Lvjogador, defesa
 
     elif mapa in 'Floresta Sombria':
         indanimal = int(tecla2)
@@ -982,20 +1026,28 @@ def infobatalha(mapa, tecla2):
 
         cursor.execute('SELECT * FROM Fragmentos')
         defesaelementar = cursor.fetchall()
-        defesaelementar = defesaelementar[0][indanimal] - 1
+        defesaelementar = defesaelementar[0][3] - 1
+
+        cursor.execute('SELECT Defese FROM Atributos')
+        da = cursor.fetchone()
+        cursor.execute('SELECT Defese FROM Habilidades')
+        dh = cursor.fetchone()
+        defesa = da[0] + dh[0]
 
         diferencaelementar = danoelementar - defesaelementar
         if diferencaelementar < 0:
             diferencaelementar = 0
-
         diferencalv = lvanimal - Lvjogador
         HPanimal = hpanimal
-        Danoanimal = danoanimal + diferencaelementar
+        Danoanimal = danoanimal + diferencaelementar - defesa
         if Lvjogador >= lvanimal or diferencalv <= 0:
             pass
         else:
             HPanimal = hpanimal + diferencalv
-            Danoanimal = danoanimal + diferencalv + diferencaelementar
+            Danoanimal = danoanimal + diferencalv + diferencaelementar - defesa
+
+        if Danoanimal < 0:
+            Danoanimal = 0
 
         cursor.execute('SELECT Exp FROM MobsFlorestaSombria')
         expanimal = cursor.fetchall()
@@ -1005,7 +1057,7 @@ def infobatalha(mapa, tecla2):
         dinheiroanimal = cursor.fetchall()
         dinheiroanimal = dinheiroanimal[indanimal][0]
 
-        return indanimal, lvanimal, HPanimal, Danoanimal, expanimal, dinheiroanimal, nomeanimal, Lvjogador
+        return indanimal, lvanimal, HPanimal, Danoanimal, expanimal, dinheiroanimal, nomeanimal, Lvjogador, defesa
 
     elif mapa in 'Polo Norte':
         indanimal = int(tecla2)
@@ -1035,20 +1087,28 @@ def infobatalha(mapa, tecla2):
 
         cursor.execute('SELECT * FROM Fragmentos')
         defesaelementar = cursor.fetchall()
-        defesaelementar = defesaelementar[0][indanimal] - 1
+        defesaelementar = defesaelementar[0][4] - 1
+
+        cursor.execute('SELECT Defese FROM Atributos')
+        da = cursor.fetchone()
+        cursor.execute('SELECT Defese FROM Habilidades')
+        dh = cursor.fetchone()
+        defesa = da[0] + dh[0]
 
         diferencaelementar = danoelementar - defesaelementar
         if diferencaelementar < 0:
             diferencaelementar = 0
-
         diferencalv = lvanimal - Lvjogador
         HPanimal = hpanimal
-        Danoanimal = danoanimal + diferencaelementar
+        Danoanimal = danoanimal + diferencaelementar - defesa
         if Lvjogador >= lvanimal or diferencalv <= 0:
             pass
         else:
             HPanimal = hpanimal + diferencalv
-            Danoanimal = danoanimal + diferencalv + diferencaelementar
+            Danoanimal = danoanimal + diferencalv + diferencaelementar - defesa
+
+        if Danoanimal < 0:
+            Danoanimal = 0
 
         cursor.execute('SELECT Exp FROM MobsIcy')
         expanimal = cursor.fetchall()
@@ -1057,7 +1117,7 @@ def infobatalha(mapa, tecla2):
         cursor.execute('SELECT Dinheiro FROM MobsIcy')
         dinheiroanimal = cursor.fetchall()
         dinheiroanimal = dinheiroanimal[indanimal][0]
-        return indanimal, lvanimal, HPanimal, Danoanimal, expanimal, dinheiroanimal, nomeanimal, Lvjogador
+        return indanimal, lvanimal, HPanimal, Danoanimal, expanimal, dinheiroanimal, nomeanimal, Lvjogador, defesa
 
     elif mapa in 'Eletrico':
         indanimal = int(tecla2)
@@ -1087,20 +1147,28 @@ def infobatalha(mapa, tecla2):
 
         cursor.execute('SELECT * FROM Fragmentos')
         defesaelementar = cursor.fetchall()
-        defesaelementar = defesaelementar[0][indanimal] - 1
+        defesaelementar = defesaelementar[0][5] - 1
+
+        cursor.execute('SELECT Defese FROM Atributos')
+        da = cursor.fetchone()
+        cursor.execute('SELECT Defese FROM Habilidades')
+        dh = cursor.fetchone()
+        defesa = da[0] + dh[0]
 
         diferencaelementar = danoelementar - defesaelementar
         if diferencaelementar < 0:
             diferencaelementar = 0
-
         diferencalv = lvanimal - Lvjogador
         HPanimal = hpanimal
-        Danoanimal = danoanimal + diferencaelementar
+        Danoanimal = danoanimal + diferencaelementar - defesa
         if Lvjogador >= lvanimal or diferencalv <= 0:
             pass
         else:
             HPanimal = hpanimal + diferencalv
-            Danoanimal = danoanimal + diferencalv + diferencaelementar
+            Danoanimal = danoanimal + diferencalv + diferencaelementar - defesa
+
+        if Danoanimal < 0:
+            Danoanimal = 0
 
         cursor.execute('SELECT Exp FROM MobsElectric')
         expanimal = cursor.fetchall()
@@ -1109,7 +1177,7 @@ def infobatalha(mapa, tecla2):
         cursor.execute('SELECT Dinheiro FROM MobsElectric')
         dinheiroanimal = cursor.fetchall()
         dinheiroanimal = dinheiroanimal[indanimal][0]
-        return indanimal, lvanimal, HPanimal, Danoanimal, expanimal, dinheiroanimal, nomeanimal, Lvjogador
+        return indanimal, lvanimal, HPanimal, Danoanimal, expanimal, dinheiroanimal, nomeanimal, Lvjogador, defesa
 
     elif mapa in 'Vulcão':
         indanimal = int(tecla2)
@@ -1139,20 +1207,28 @@ def infobatalha(mapa, tecla2):
 
         cursor.execute('SELECT * FROM Fragmentos')
         defesaelementar = cursor.fetchall()
-        defesaelementar = defesaelementar[0][indanimal] - 1
+        defesaelementar = defesaelementar[0][6] - 1
+
+        cursor.execute('SELECT Defese FROM Atributos')
+        da = cursor.fetchone()
+        cursor.execute('SELECT Defese FROM Habilidades')
+        dh = cursor.fetchone()
+        defesa = da[0] + dh[0]
 
         diferencaelementar = danoelementar - defesaelementar
         if diferencaelementar < 0:
             diferencaelementar = 0
-
         diferencalv = lvanimal - Lvjogador
         HPanimal = hpanimal
-        Danoanimal = danoanimal + diferencaelementar
+        Danoanimal = danoanimal + diferencaelementar - defesa
         if Lvjogador >= lvanimal or diferencalv <= 0:
             pass
         else:
             HPanimal = hpanimal + diferencalv
-            Danoanimal = danoanimal + diferencalv + diferencaelementar
+            Danoanimal = danoanimal + diferencalv + diferencaelementar - defesa
+
+        if Danoanimal < 0:
+            Danoanimal = 0
 
         cursor.execute('SELECT Exp FROM MobsFire')
         expanimal = cursor.fetchall()
@@ -1161,7 +1237,7 @@ def infobatalha(mapa, tecla2):
         cursor.execute('SELECT Dinheiro FROM MobsFire')
         dinheiroanimal = cursor.fetchall()
         dinheiroanimal = dinheiroanimal[indanimal][0]
-        return indanimal, lvanimal, HPanimal, Danoanimal, expanimal, dinheiroanimal, nomeanimal, Lvjogador
+        return indanimal, lvanimal, HPanimal, Danoanimal, expanimal, dinheiroanimal, nomeanimal, Lvjogador, defesa
 
 
 def loja():

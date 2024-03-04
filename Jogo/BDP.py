@@ -7,6 +7,7 @@ dinheiro = 0
 diamante = 0
 
 mortejogador = 0
+perdaexp = 0
 
 Fragmentos = ['Fragmento de Hit', 'Fragmento de Ar', 'Fragmento de Psíquico', 'Fragmento de Alma', 'Fragmento de Gelo',
               'Fragmento de Choque', 'Fragmento de Fogo']
@@ -22,7 +23,7 @@ mapamob = []
 # nome, lv, vida, dano, exp, dinheiro, morte
 # Colina Verde
 
-nmobscolinaverde = ['0', '1', '2', '3', '4', '5', '6', '7']
+nmobscolinaverde = ['0', '1', '2', '3', '4', '5', '6', '7', '8']
 mobscolinaverde = [['Rats', 1, 12, 7, 5, 3, 0], ['Crow', 15, 40, 25, 17, 15, 0], ['Wolf', 30, 70, 47, 34, 29, 0],
                    ['Lizard', 45, 102, 71, 53, 45, 0], ['Slime', 60, 136, 97, 74, 63, 0],
                    ['Assasin', 75, 172, 125, 97, 83, 0], ['Bear', 90, 210, 155, 122, 105, 0],
