@@ -6,7 +6,7 @@ import BDP
 
 
 def Connecte():
-    log = 1
+    log = 0
     banco = sqlite3.connect('Banco_Dados.db')
     cursor = banco.cursor()
     if log == 0:
