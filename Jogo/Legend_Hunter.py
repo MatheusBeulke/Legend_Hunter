@@ -47,7 +47,11 @@ def UpdateNome(update, Set, Igual, Where):
 
 
 def Connecte():
+<<<<<<< HEAD
     caminho = Path('Banco_Dados.db')
+=======
+    log = 0
+>>>>>>> 64218f038b2ede700c3ef2d41aa31319e4da751a
     banco = sqlite3.connect('Banco_Dados.db')
     cursor = banco.cursor()
     if caminho.exists():
