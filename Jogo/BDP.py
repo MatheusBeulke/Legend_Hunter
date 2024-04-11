@@ -1,16 +1,17 @@
 # Jogador
-level = {'Lv': 1, 'qtdeexp': 0, 'exp': 100}
-jogador = {'HP': 100, 'vida': 100, 'pontos': 1}
-atributos = {'atack': 4, 'defesa': 1}
-habilidades = {'atack': 1, 'tempoatack': 60, 'defesa': 1, 'tempodefesa': 60}
-dinheiro = 0
-diamante = 0
-
 mortejogador = 0
+mortepet = 0
 perdaexp = 0
+qtdemorte = 1
 
+# Fragmentos
 Fragmentos = ['Fragmento de Hit', 'Fragmento de Ar', 'Fragmento de Psíquico', 'Fragmento de Alma', 'Fragmento de Gelo',
               'Fragmento de Choque', 'Fragmento de Fogo']
+fragmentos = ['FragmentoHit', 'FragmentoAr', 'FragmentoPsíquico', 'FragmentoAlma', 'FragmentoGelo',
+              'FragmentoEletrico', 'FragmentoFogo']
+
+# Loja
+TipoLojas = ['Poções', 'Ferramentas', 'Pets', 'Magias']
 
 Loja = [['PoçãoPequena', 50, 20, 10, '0'], ['PoçãoMédia', 100, 50, 0, '1'], ['PoçãoGrande', 200, 100, 0, '2'],
         ['PoçãoGigante', 400, 200, 0, '3'], ['HiperPoção', 800, 400, 0, '4'], ['PoçãoMagica', 1600, 800, 0, '5']]
@@ -18,49 +19,60 @@ Loja = [['PoçãoPequena', 50, 20, 10, '0'], ['PoçãoMédia', 100, 50, 0, '1'],
 # Mapa
 nmapa = ['0', '1', '2', '3', '4', '5', '6']
 mapa = ['Colina Verde', 'Deserto', 'Caverna de Mineração', 'Floresta Sombria', 'Polo Norte', 'Eletrico', 'Vulcão']
-mapamob = []
+locais = ['MobsColinaVerde', 'MobsDeserto', 'MobsCavernaMinerção', 'MobsFlorestaSombria', 'MobsIcy', 'MobsElectric',
+          'MobsFire']
 
 # nome, lv, vida, dano, exp, dinheiro, morte
-# Colina Verde
+nmobs = [['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
+         ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'], ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
+         ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14'],
+         ['0', '1', '2', '3', '4', '5', '6', '7'], ['0', '1', '2', '3', '4', '5', '6'], ['0', '1', '2', '3', '4', '5']]
 
-nmobscolinaverde = ['0', '1', '2', '3', '4', '5', '6', '7', '8']
-mobscolinaverde = [['Rats', 1, 12, 7, 5, 3, 0], ['Crow', 15, 40, 25, 17, 15, 0], ['Wolf', 30, 70, 47, 34, 29, 0],
-                   ['Lizard', 45, 102, 71, 53, 45, 0], ['Slime', 60, 136, 97, 74, 63, 0],
-                   ['Assasin', 75, 172, 125, 97, 83, 0], ['Bear', 90, 210, 155, 122, 105, 0],
-                   ['Goblin', 105, 250, 187, 129, 0], ['Minutaur', 120, 292, 265, 209, 183, 1]]
+mobs = [
+    [['Rats', 1], ['Crow', 15], ['Wolf', 30], ['Lizard', 45], ['Slime', 60], ['Assasin', 75], ['Bear', 90],
+     ['Goblin', 105], ['Minutaur', 120], ['Peixes'], ['Boss']],
 
-# Deserto
-nmobsdeserto = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-mobsdeseto = [['Scorpion', 135, 350, 300, 230, 200, 0], ['Snake', 150, 378, 320, 245, 212, 0],
-              ['Worm', 165, 408, 342, 262, 226, 0], ['Scarab', 180, 440, 366, 281, 242, 0],
-              ['Cactus Soldier', 195, 474, 392, 302, 260, 0], ['Raptor', 210, 510, 420, 325, 280, 0],
-              ['Mummy', 225, 548, 450, 350, 302, 0], ['Pharaó', 240, 588, 482, 377, 326, 0],
-              ['Anubis', 255, 630, 516, 406, 352, 0], ['Sandstone Golem', 270, 674, 552, 437, 380, 0]]
+    [['Scorpion', 135], ['Snake', 150], ['Worm', 165], ['Scarab', 180], ['Cactus Soldier', 195],
+     ['Raptor', 210], ['Mummy', 225], ['Pharaó', 240], ['Anubis', 255], ['Sandstone Golem', 270], ['Boss']],
 
-# Caverna de mineração
-nmobscavernaminer = ['0', '1', '2', '3', '4', '5', '6', '7']
-mobscarvenaminer = [['Bat', 285, 700, 580, 450, 400, 0], ['Gigantula', 300, 728, 600, 456, 412, 0],
-                    ['Dwarf', 315, 758, 622, 482, 426, 0], ['Miner', 330, 790, 646, 501, 442, 0],
-                    ['Troll', 345, 824, 672, 522, 460, 0], ['Orc', 360, 850, 700, 545, 480, 0],
-                    ['Djinn', 375, 888, 730, 570, 502, 0], ['Ciclops', 390, 948, 762, 597, 526, 0]]
+    [['Bat', 285], ['Gigantula', 300], ['Dwarf', 315], ['Miner', 330], ['Troll', 345], ['Orc', 360], ['Djinn', 375],
+     ['Ciclops', 390], ['Pedras'], ['Boss']],
 
-# Floresta sombria
-nmobsflorestasombria = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
-mobsflorestasombria = [['Skeleton', 405, 986, 804, 626, 549, 0], ['Zombie', 420, 1014, 824, 641, 561, 0],
-                       ['Ghost', 435], ['Witch', 450], ['Lich', 465], ['Shandow', 480], ['Phanton Flame', 495],
-                       ['Phanton Fiend', 510], ['Skeleton Dragon', 525], ['Gargoyle', 540], ['Spectral Flame', 555],
-                       ['Spectral Fiend', 570], ['Vampire', 585]]
+    [['Skeleton', 405, 986, 804, 626, 549, 0], ['Zombie', 420, 1014, 824, 641, 561, 0],
+     ['Ghost', 435], ['Witch', 450], ['Lich', 465], ['Shandow', 480], ['Phanton Flame', 495],
+     ['Phanton Fiend', 510], ['Skeleton Dragon', 525], ['Gargoyle', 540], ['Spectral Flame', 555],
+     ['Spectral Fiend', 570], ['Vampire', 585], ['Madeiras'], ['Boss']],
 
-# Icy
-nmobsicy = ['0', '1', '2', '3', '4', '5', '6']
-mobsicy = [['Icy Flame', 600], ['Snow Golem', 615], ['Mammoth', 630], ['Yeti', 645], ['Icy Wizard', 660],
-           ['Icy Dragon', 675], ['Icy Fiend', 690]]
+    [['Icy Flame', 600], ['Snow Golem', 615], ['Mammoth', 630], ['Yeti', 645], ['Icy Wizard', 660],
+     ['Icy Dragon', 675], ['Icy Fiend', 690], ['Boss']],
 
-# Electric
-nmobselectric = ['0', '1', '2', '3', '4', '5']
-mobselectric = [['Electric Flame', 705], ['Electric Golem', 720], ['Electric Yeti', 735], ['Electric Wizard', 750],
-                ['Electric Dragon', 765], ['Electric Fiend', 780]]
+    [['Electric Flame', 705], ['Electric Golem', 720], ['Electric Yeti', 735], ['Electric Wizard', 750],
+     ['Electric Dragon', 765], ['Electric Fiend', 780], ['Boss']],
 
-# Fire
-nmobsfire = ['0', '1', '2', '3', '4']
-mobsfire = [['Flame', 795], ['Fire Golem', 810], ['Wizard', 825], ['Dragon', 840], ['Demon', 855]]
+    [['Flame', 795], ['Fire Golem', 810], ['Wizard', 825], ['Dragon', 840], ['Demon', 855], ['Boss']],
+        ]
+
+# Ferramentas
+# Picaretas
+Picaretas = [['Picareta Inicial', 90, 50], ['Picareta de Ferro', 60, 100], ['Picareta de Titanio', 30, 150],
+             ['Picareta dos Deuses', 15, 200]]
+
+# Machados
+Machados = [['Machado Inicial', 60, 20], ['Machado de Ferro', 40, 40], ['Machado de Titanio', 20, 60],
+            ['Machado dos Deuses', 10, 80]]
+
+# VaraPesca
+VaraPesca = [['Vara de Pesca', 40, 30], ['Vara de Pesca com Comida', 20, 60]]
+
+# Itens
+Itens = ['Madeiras', 'Pedras', 'Peixes', 'Couros']
+
+# Pets
+npets = ['0', '1', '2', '3', '4', '5', '6']
+pets = [['Wolf', 1], ['Scorpion', 1], ['Troll', 1], ['Shandow', 1], ['Icy Dragon', 1], ['Electric Yeti', 1],
+        ['Demon', 1]]
+
+# Magias
+magias = [['Hit', 1], ['Hit', 2], ['Hit', 3], ['Ar', 1], ['Ar', 2], ['Ar', 3], ['Psiquico', 1], ['Psiquico', 2],
+          ['Psiquico', 3], ['Alma', 1], ['Alma', 2], ['Alma', 3], ['Gelo', 1], ['Gelo', 2], ['Gelo', 3],
+          ['Eletrico', 1], ['Eletrico', 2], ['Eletrico', 3], ['Fogo', 1], ['Fogo', 2], ['Fogo', 3]]
