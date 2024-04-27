@@ -359,7 +359,7 @@ def inicio():
                     print(f'Exp: {exp[0] - 1}/{totalexp[0]}')
 
                     dinheiro = Busca('Dinheiro', 'Jogador', 'one')
-                    print(f'Dinheiro: {int(dinheiro[0])}')
+                    print(f'Dinheiro: {int(dinheiro[0]) - 1}')
 
                     diamante = Busca('Diamante', 'Jogador', 'one')
                     print(f'Diamante: {int(diamante[0]) - 1}')
