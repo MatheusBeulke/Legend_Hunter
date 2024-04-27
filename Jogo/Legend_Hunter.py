@@ -61,6 +61,7 @@ def CriandoBD(cursor, banco):
     cursor.execute('CREATE TABLE Jogador (Nome text, Level integer, HP integer, Vida integer, Mana integer,'
                    'QtdeMana integer, QtdeExp integer, EXP integer, Dinheiro integer, Diamante integer,'
                    'Pontos integer)')
+
     while True:
         nome = str(input('Nome: ')).strip()
         if nome in '':
