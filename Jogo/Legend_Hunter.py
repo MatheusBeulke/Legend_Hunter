@@ -48,12 +48,12 @@ def UpdateNome(update, Set, Igual, Where):
 
 def Connecte():
     caminho = Path('Banco_Dados.db')
-    banco = sqlite3.connect('Banco_Dados.db')
-    cursor = banco.cursor()
     if caminho.exists():
-        CriandoBD(cursor, banco)
-    else:
         inicio()
+    else:
+        banco = sqlite3.connect('Banco_Dados.db')
+        cursor = banco.cursor()
+        CriandoBD(cursor, banco)
 
 
 def CriandoBD(cursor, banco):
