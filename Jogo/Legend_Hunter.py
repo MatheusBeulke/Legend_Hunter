@@ -61,7 +61,6 @@ def CriandoBD(cursor, banco):
     cursor.execute('CREATE TABLE Jogador (Nome text, Level integer, HP integer, Vida integer, Mana integer,'
                    'QtdeMana integer, QtdeExp integer, EXP integer, Dinheiro integer, Diamante integer,'
                    'Pontos integer)')
-
     while True:
         nome = str(input('Nome: ')).strip()
         if nome in '':
@@ -86,7 +85,7 @@ def CriandoBD(cursor, banco):
     cursor.execute('CREATE TABLE MobsColinaVerde (Nome text, Level integer, HP integer, Dano integer,'
                    ' DanoElementar integer, Exp integer, Dinheiro integer, Morte integer)')
 
-    #                                                 Nome,   Lv,  HP, D, DF, E, D, M
+    #                                                Nome,   Lv,  HP, D, DF, E, D, M
     cursor.execute("INSERT INTO MobsColinaVerde VALUES('Rats', 1, 12, 7 , 2, 5, 3, 1)")
     cursor.execute("INSERT INTO MobsColinaVerde VALUES('Crow', 15, 40, 25, 4, 17, 15, 1)")
     cursor.execute("INSERT INTO MobsColinaVerde VALUES('Wolf', 30, 70, 47, 6, 34, 29, 1)")
