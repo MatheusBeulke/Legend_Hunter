@@ -1312,6 +1312,7 @@ def habilidades():
 
             elif tecla1 in '0':
                 for i in range(tempoatack[0], -1, -1):
+                    tempoatack = Busca('TempoAtack', 'Habilidades', 'one')
                     mnts = tempoatack[0] - 1
                     print(f'\r{tempoatack[0]}', end='')
                     if tempoatack[0] == 0:
@@ -1331,7 +1332,7 @@ def habilidades():
                     print(f'\r{tempodefese[0]}', end='')
                     if tempodefese[0] == 0:
                         uplvdefese = lvdefese[0] + 1
-                        Update('TempoDefese', 'Defese', uplvdefese, lvdefese[0])
+                        Update('Habilidades', 'Defese', uplvdefese, lvdefese[0])
                         qtdeuptempo = uplvdefese * 60
                         Update('Habilidades', 'TempoDefese', qtdeuptempo, mnts)
                         break
