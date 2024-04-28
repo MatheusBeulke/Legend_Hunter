@@ -199,7 +199,7 @@ def CriandoBD(cursor, banco):
 
     # Atributos
     cursor.execute('CREATE TABLE Atributos (Defese integer, Atack integer )')
-    cursor.execute("INSERT INTO Atributos VALUES(1, 4)")
+    cursor.execute("INSERT INTO Atributos VALUES(1, 12)")
 
     # Skill
     cursor.execute('CREATE TABLE Habilidades (Defese integer, TempoDefese integer, Atack integer, TempoAtack integer)')
@@ -335,7 +335,7 @@ def inicio():
                 sleep(1)
                 print('[6] Pets')
                 print('[7] Magias')
-                
+
                 print('[8] Quantidade de mob matado')
                 print('[C] Voltar')
                 while True:
@@ -1063,7 +1063,7 @@ def mortemob(locais, indanimal, nomeanimal, tecla1, dinheiroanimal, expanimal, N
 
     morte = Busca('Morte', locais, 'all')
     morte = morte[indanimal][0]
-    kill = morte + 1
+    kill = morte + 50
     UpdateNome(locais, 'Morte', kill, nomeanimal)
 
     dinheiro = Busca('Dinheiro', 'Jogador', 'one')
@@ -1097,7 +1097,7 @@ def mortemob(locais, indanimal, nomeanimal, tecla1, dinheiroanimal, expanimal, N
         fragmentos = Busca(BDP.fragmentos[tecla1], 'Fragmentos', 'all')
 
         ganhofragmento = fragmentos[0][0] + 1
-        Update('Fragmentos', BDP.fragmentos[tecla1], ganhofragmento, fragmentos)
+        Update('Fragmentos', BDP.fragmentos[tecla1], ganhofragmento, fragmentos[0][0])
         print(f'Você ganhou 1 {BDP.Fragmentos[tecla1]}')
         sleep(3)
     print('-=' * 10)
@@ -1118,7 +1118,7 @@ def LvJogador():
             uplv = Lv[0] + 1
             Update('Jogador', 'Level', uplv, Lv[0])
             upexp = EXP[0] * 2
-            Update('Jogador', 'EXP', upexp, EXP)
+            Update('Jogador', 'EXP', upexp, EXP[0])
 
             Vida = Busca('Vida', 'Jogador', 'one')
             HP = Busca('HP', 'Jogador', 'one')
@@ -1171,7 +1171,7 @@ def LevelAnimal(locais, tecla1, indanimal, nomeanimal):
                 UpdateNome(locais, 'level', LvAnimal, nomeanimal)
 
                 hpanimal = Busca('HP', locais, 'all')
-                hpanimal = hpanimal[tecla1][indanimal][0]
+                hpanimal = hpanimal[tecla1][indanimal]
                 ganhohp = hpanimal + 1
                 UpdateNome(locais, 'HP', ganhohp, nomeanimal)
 
@@ -1837,46 +1837,4 @@ def RecuperarHP():
         while True:
             tecla3 = str(input('tecla: ')).strip().upper()
             if tecla3 in lista or tecla3 in 'C':
-                break
-            else:
-                print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-        if tecla3 in 'C':
-            break
-
-        tecla3 = int(tecla3)
-        busca = BDP.Loja[tecla3][0]
-        Vida = Busca('Vida', 'Jogador', 'one')
-        rec = Vida[0] + BDP.Loja[tecla3][2]
-        if rec >= HP[0]:
-            Update('Jogador', 'Vida', HP[0], Vida[0])
-
-        else:
-            Update('Jogador', 'Vida', rec, Vida[0])
-
-        for i in lista:
-            lista.remove(i)
-
-        qtdepot = Busca('*', 'Bolsa', 'one')
-        qtde = qtdepot[tecla3] - 1
-        Update('Bolsa', busca, qtde, qtdepot[tecla3])
-        HP = Busca('HP', 'Jogador', 'one')
-        print(f'HP: {Vida[0]}/{HP[0]}')
-        sleep(1)
-        break
-
-
-def Mortesmobs():
-    for num, local in enumerate(BDP.locais):
-        kill = Busca('Morte', local, 'all')
-        for pos, morte in enumerate(kill):
-            for qtde in morte:
-                qtde -= 1
-                if BDP.mobs[num][pos][0] in ['Peixes', 'Pedras', 'Madeiras']:
-                    pass
-
-                else:
-                    if qtde > 0:
-                        print(f'{BDP.mobs[num][pos][0]} = {qtde}')
-
-
-Connecte()
+                br
