@@ -331,11 +331,11 @@ def inicio():
                 print('[3] Proteção Elementar')
                 sleep(1)
                 print('[4] Mochila')
-                print('[5] Ferramentas/Armas')
+                print('[5] Ferramentas')
                 sleep(1)
                 print('[6] Pets')
                 print('[7] Magias')
-
+                sleep(1)
                 print('[8] Quantidade de mob matado')
                 print('[C] Voltar')
                 while True:
@@ -400,7 +400,7 @@ def inicio():
                     sleep(2)
 
                 elif tecla1 in '5':
-                    print("Ferramentas/Armas:")
+                    print("Ferramentas:")
                     qtdepicaretas = Busca('Qtde', 'Picaretas', 'all')
                     qtdemachados = Busca('Qtde', 'Machados', 'all')
                     qtdevarapesca = Busca('Qtde', 'VaraPesca', 'all')
@@ -536,8 +536,8 @@ def inicio():
             while True:
                 print('[0] Loja de Poções')
                 print('[1] Loja de Ferramentas')
-                print('[2] Loja de Pet')
-                print('[3] Loja de Magia')
+                print('[2] Loja de Pets')
+                print('[3] Loja de Magias')
                 print('[C] Voltar')
                 while True:
                     tecla2 = str(input('Tecla: ')).strip().upper()
