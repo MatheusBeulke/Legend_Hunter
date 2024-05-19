@@ -1,288 +1,22 @@
-from time import sleep
-from math import trunc
-from random import randint
 import sqlite3
 from pathlib import Path
+from time import sleep
+from random import randint, shuffle
+from math import trunc
 
 
-class Jogador:
-    def __init__(self):
-        banco = sqlite3.connect('Banco_Dados.db')
+def Connect():
+    caminho = Path('BDP.db')
+    if caminho.exists():
+        Inicio()
+    else:
+        banco = sqlite3.connect('BDP.db')
         cursor = banco.cursor()
-        self.nome = cursor.execute('SELECT Nome FROM Jogador').fetchone()[0]
-        self.lv = cursor.execute('SELECT Level FROM Jogador').fetchone()[0]
-        self.hp = cursor.execute('SELECT HP FROM Jogador').fetchone()[0]
-        self.vida = cursor.execute('SELECT Vida FROM Jogador').fetchone()[0]
-        self.mana = cursor.execute('SELECT Mana FROM Jogador').fetchone()[0]
-        self.qtdemana = cursor.execute('SELECT QtdeMana FROM Jogador').fetchone()[0]
-        self.qtdeexp = cursor.execute('SELECT QtdeExp FROM Jogador').fetchone()[0] - 1
-        self.exp = cursor.execute('SELECT EXP FROM Jogador').fetchone()[0]
-        self.dinheiro = cursor.execute('SELECT Dinheiro FROM Jogador').fetchone()[0] - 1
-        self.diamante = cursor.execute('SELECT Diamante FROM Jogador').fetchone()[0] - 1
-        self.pontos = cursor.execute('SELECT Pontos FROM Jogador').fetchone()[0] - 1
-
-
-class Morte:
-    def __init__(self):
-        banco = sqlite3.connect('Banco_Dados.db')
-        cursor = banco.cursor()
-        self.mortejogador = cursor.execute('SELECT MorteJogador FROM Morte').fetchone()[0]  # 1 - Vivo
-        self.tatack = cursor.execute('SELECT TAtack FROM Morte').fetchone()[0]
-        self.tdefese = cursor.execute('SELECT TDefese FROM Morte').fetchone()[0]
-        self.qtdemorte = cursor.execute('SELECT QtdeMorte FROM Morte').fetchone()[0] - 1
-        self.mortepet = cursor.execute('SELECT MortePet FROM Morte').fetchone()[0]  # 2 - Morto
-
-
-class Itens:
-    def __init__(self, ind='0'):
-        banco = sqlite3.connect('Banco_Dados.db')
-        cursor = banco.cursor()
-        self.nome = cursor.execute('SELECT Nome FROM Itens').fetchall()[int(ind)][0]
-        self.qtde = cursor.execute('SELECT Qtde FROM Itens').fetchall()[int(ind)][0] - 1
-
-
-class Mapas:
-    def __init__(self, ind):
-        banco = sqlite3.connect('Banco_Dados.db')
-        cursor = banco.cursor()
-        self.nome = cursor.execute('SELECT Nome FROM Mapa').fetchall()[ind][0]
-        self.qtdemob = cursor.execute('SELECT QtdeMob FROM Mapa').fetchall()[ind][0]
-
-
-class Mobs:
-    def __init__(self, local, ind=0):
-        banco = sqlite3.connect('Banco_Dados.db')
-        cursor = banco.cursor()
-        self.nome = cursor.execute('SELECT Nome FROM "' + str(local) + '"').fetchall()[ind][0]
-        self.lv = cursor.execute('SELECT Level FROM "' + str(local) + '"').fetchall()[ind][0]
-        self.hp = cursor.execute('SELECT HP FROM "' + str(local) + '"').fetchall()[ind][0]
-        self.dano = cursor.execute('SELECT Dano FROM "' + str(local) + '"').fetchall()[ind][0]
-        self.danoelementar = cursor.execute('SELECT DanoElementar FROM "' + str(local) + '"').fetchall()[ind][0]
-        self.exp = cursor.execute('SELECT Exp FROM "' + str(local) + '"').fetchall()[ind][0]
-        self.dinheiro = cursor.execute('SELECT Dinheiro FROM "' + str(local) + '"').fetchall()[ind][0]
-        self.morte = cursor.execute('SELECT Morte FROM "' + str(local) + '"').fetchall()[ind][0] - 1
-
-
-class Fragmentos:
-    def __init__(self, ind=0):
-        banco = sqlite3.connect('Banco_Dados.db')
-        cursor = banco.cursor()
-        self.nome = cursor.execute('SELECT Nome FROM Fragmentos').fetchall()[ind][0]
-        self.nomec = cursor.execute('SELECT NomeC FROM Fragmentos').fetchall()[ind][0]
-        self.qtde = cursor.execute('SELECT Qtde FROM Fragmentos').fetchall()[ind][0] - 1
-
-
-class Atributos:
-    def __init__(self):
-        banco = sqlite3.connect('Banco_Dados.db')
-        cursor = banco.cursor()
-        self.defesa = cursor.execute('SELECT Defese FROM Atributos').fetchone()[0]
-        self.atack = cursor.execute('SELECT Atack FROM Atributos').fetchone()[0]
-
-
-class Skill:
-    def __init__(self):
-        banco = sqlite3.connect('Banco_Dados.db')
-        cursor = banco.cursor()
-        self.defesa = cursor.execute('SELECT Defese FROM Habilidades').fetchone()[0]
-        self.tempodefesa = cursor.execute('SELECT TempoDefese FROM Habilidades').fetchone()[0]
-        self.atack = cursor.execute('SELECT Atack FROM Habilidades').fetchone()[0]
-        self.tempoatack = cursor.execute('SELECT TempoAtack FROM Habilidades').fetchone()[0]
-
-
-class Pet:
-    def __init__(self, ind=0):
-        banco = sqlite3.connect('Banco_Dados.db')
-        cursor = banco.cursor()
-        self.nome = cursor.execute('SELECT Nome FROM Pets').fetchall()[ind][0]
-        self.lv = cursor.execute('SELECT Level FROM Pets').fetchall()[ind][0]
-        self.hp = cursor.execute('SELECT HP FROM Pets').fetchall()[ind][0]
-        self.vida = cursor.execute('SELECT Vida FROM Pets').fetchall()[ind][0]
-        self.dano = cursor.execute('SELECT Dano FROM Pets').fetchall()[ind][0]
-        self.qtde = cursor.execute('SELECT Qtde FROM Pets').fetchall()[ind][0] - 1
-        self.exp = cursor.execute('SELECT Exp FROM Pets').fetchall()[ind][0] - 1
-        self.qtdeExp = cursor.execute('SELECT QtdeExp FROM Pets').fetchall()[ind][0]
-        self.preco = cursor.execute('SELECT Preco FROM Pets').fetchall()[ind][0]
-        self.id = cursor.execute('SELECT Id FROM Pets').fetchall()[ind][0]
-        self.ind = cursor.execute('SELECT Ind FROM Pets').fetchall()[ind][0]
-
-
-class PetJogador:
-    def __init__(self):
-        banco = sqlite3.connect('Banco_Dados.db')
-        cursor = banco.cursor()
-        self.nome = cursor.execute('SELECT Nome FROM PetsJogador').fetchone()[0]
-        self.lv = cursor.execute('SELECT Level FROM PetsJogador').fetchone()[0]
-        self.hp = cursor.execute('SELECT HP FROM PetsJogador').fetchone()[0]
-        self.vida = cursor.execute('SELECT Vida FROM PetsJogador').fetchone()[0]
-        self.dano = cursor.execute('SELECT Dano FROM PetsJogador').fetchone()[0]
-        self.id = cursor.execute('SELECT id FROM PetsJogador').fetchone()[0]
-
-
-class Lojas:
-    def __init__(self, loja=0):
-        banco = sqlite3.connect('Banco_Dados.db')
-        cursor = banco.cursor()
-        self.nome = cursor.execute('SELECT Nome FROM Lojas').fetchall()[loja][0]
-        self.lv = cursor.execute('SELECT Level FROM Lojas').fetchall()[loja][0]
-        self.customadeiras = cursor.execute('SELECT CustoMadeiras FROM Lojas').fetchall()[loja][0]
-        self.custopedras = cursor.execute('SELECT CustoPedras FROM Lojas').fetchall()[loja][0]
-        self.custopeixes = cursor.execute('SELECT CustoPeixes FROM Lojas').fetchall()[loja][0]
-        self.custocouros = cursor.execute('SELECT CustoCouros FROM Lojas').fetchall()[loja][0]
-
-
-class Picaretas:
-    def __init__(self, ind=0):
-        banco = sqlite3.connect('Banco_Dados.db')
-        cursor = banco.cursor()
-        self.nome = cursor.execute('SELECT Nome FROM Picaretas').fetchall()[ind][0]
-        self.eficiencia = cursor.execute('SELECT Eficiencia FROM Picaretas').fetchall()[ind][0]
-        self.preco = cursor.execute('SELECT Preco FROM Picaretas').fetchall()[ind][0]
-        self.qtde = cursor.execute('SELECT Qtde FROM Picaretas').fetchall()[ind][0] - 1
-
-
-class Machados:
-    def __init__(self, ind=0):
-        banco = sqlite3.connect('Banco_Dados.db')
-        cursor = banco.cursor()
-        self.nome = cursor.execute('SELECT Nome FROM Machados').fetchall()[ind][0]
-        self.eficiencia = cursor.execute('SELECT Eficiencia FROM Machados').fetchall()[ind][0]
-        self.preco = cursor.execute('SELECT Preco FROM Machados').fetchall()[ind][0]
-        self.qtde = cursor.execute('SELECT Qtde FROM Machados').fetchall()[ind][0] - 1
-
-
-class VaraPesca:
-    def __init__(self, ind=0):
-        banco = sqlite3.connect('Banco_Dados.db')
-        cursor = banco.cursor()
-        self.nome = cursor.execute('SELECT Nome FROM VaraPesca').fetchall()[ind][0]
-        self.eficiencia = cursor.execute('SELECT Eficiencia FROM VaraPesca').fetchall()[ind][0]
-        self.preco = cursor.execute('SELECT Preco FROM VaraPesca').fetchall()[ind][0]
-        self.qtde = cursor.execute('SELECT Qtde FROM VaraPesca').fetchall()[ind][0] - 1
-
-
-class Armas:
-    def __init__(self, ind=0):
-        banco = sqlite3.connect('Banco_Dados.db')
-        cursor = banco.cursor()
-        self.nome = cursor.execute('SELECT Nome FROM Armas').fetchall()[ind][0]
-        self.lv = cursor.execute('SELECT Lv FROM Armas').fetchall()[ind][0]
-        self.dano = cursor.execute('SELECT Dano FROM Armas').fetchall()[ind][0]
-        self.preco = cursor.execute('SELECT Preco FROM Armas').fetchall()[ind][0]
-        self.rec = cursor.execute('SELECT Rec FROM Armas').fetchall()[ind][0]
-        self.atack = cursor.execute('SELECT Atack FROM Armas').fetchall()[ind][0]
-        self.qtde = cursor.execute('SELECT Qtde FROM Armas').fetchall()[ind][0] - 1
-        self.id = cursor.execute('SELECT Id FROM Armas').fetchall()[ind][0]
-
-
-class ArmaJogador:
-    def __init__(self):
-        banco = sqlite3.connect('Banco_Dados.db')
-        cursor = banco.cursor()
-        self.nome = cursor.execute('SELECT Nome FROM EspadaJogador').fetchone()[0]
-        self.lv = cursor.execute('SELECT Lv FROM EspadaJogador').fetchone()[0]
-        self.dano = cursor.execute('SELECT Dano FROM EspadaJogador').fetchone()[0]
-        self.rec = cursor.execute('SELECT Rec FROM EspadaJogador').fetchone()[0]
-        self.atack = cursor.execute('SELECT Atack FROM EspadaJogador').fetchone()[0]
-        self.id = cursor.execute('SELECT Id FROM EspadaJogador').fetchone()[0]
-
-
-class Magias:
-    def __init__(self, ind=0):
-        banco = sqlite3.connect('Banco_Dados.db')
-        cursor = banco.cursor()
-        self.nome = cursor.execute('SELECT Nome FROM Magias').fetchall()[ind][0]
-        self.lv = cursor.execute('SELECT Lv FROM Magias').fetchall()[ind][0]
-        self.mana = cursor.execute('SELECT Mana FROM Magias').fetchall()[ind][0]
-        self.dano = cursor.execute('SELECT Dano FROM Magias').fetchall()[ind][0]
-        self.preco = cursor.execute('SELECT Preco FROM Magias').fetchall()[ind][0]
-        self.lvmin = cursor.execute('SELECT Lvmin FROM Magias').fetchall()[ind][0]
-        self.tempo = cursor.execute('SELECT tempo FROM Magias').fetchall()[ind][0]
-        self.qtde = cursor.execute('SELECT Qtde FROM Magias').fetchall()[ind][0] - 1
-        self.id = cursor.execute('SELECT Id FROM Magias').fetchall()[ind][0]
-
-
-class MagiaJogador:
-    def __init__(self):
-        banco = sqlite3.connect('Banco_Dados.db')
-        cursor = banco.cursor()
-        self.nome = cursor.execute('SELECT Nome FROM MagiaJogador').fetchone()[0]
-        self.lv = cursor.execute('SELECT Lv FROM MagiaJogador').fetchone()[0]
-        self.mana = cursor.execute('SELECT Mana FROM MagiaJogador').fetchone()[0]
-        self.dano = cursor.execute('SELECT Dano FROM MagiaJogador').fetchone()[0]
-        self.tempo = cursor.execute('SELECT tempo FROM MagiaJogador').fetchone()[0]
-        self.id = cursor.execute('SELECT Id FROM MagiaJogador').fetchone()[0]
-
-
-class PocoesHP:
-    def __init__(self, ind=0):
-        banco = sqlite3.connect('Banco_Dados.db')
-        cursor = banco.cursor()
-        self.nome = cursor.execute('SELECT Nome FROM Bolsa').fetchall()[ind][0]
-        self.rec = cursor.execute('SELECT Rec FROM Bolsa').fetchall()[ind][0]
-        self.qtde = cursor.execute('SELECT Qtde FROM Bolsa').fetchall()[ind][0] - 1
-        self.preco = cursor.execute('SELECT Preco FROM Bolsa').fetchall()[ind][0]
-
-
-class PocoesMana:
-    def __init__(self, ind=0):
-        banco = sqlite3.connect('Banco_Dados.db')
-        cursor = banco.cursor()
-        self.nome = cursor.execute('SELECT Nome FROM PocaoMana').fetchall()[ind][0]
-        self.rec = cursor.execute('SELECT Rec FROM PocaoMana').fetchall()[ind][0]
-        self.qtde = cursor.execute('SELECT Qtde FROM PocaoMana').fetchall()[ind][0] - 1
-        self.preco = cursor.execute('SELECT Preco FROM PocaoMana').fetchall()[ind][0]
-
-
-class PocaoJogadorHP:
-    def __init__(self):
-        banco = sqlite3.connect('Banco_Dados.db')
-        cursor = banco.cursor()
-        self.nome = cursor.execute('SELECT Nome FROM PocaoJogador').fetchone()[0]
-        self.uso = cursor.execute('SELECT uso FROM PocaoJogador').fetchone()[0]
-        self.id = cursor.execute('SELECT Id FROM PocaoJogador').fetchone()[0]
-
-
-class PocaoJogadorMana:
-    def __init__(self):
-        banco = sqlite3.connect('Banco_Dados.db')
-        cursor = banco.cursor()
-        self.nome = cursor.execute('SELECT Nome FROM PocaoJogadorMana').fetchone()[0]
-        self.uso = cursor.execute('SELECT uso FROM PocaoJogadorMana').fetchone()[0]
-        self.id = cursor.execute('SELECT Id FROM PocaoJogadorMana').fetchone()[0]
-
-
-def linha(f):
-    tamanho = len(f) + 4
-    print('-' * tamanho)
-    print(f'{f:^{tamanho}}')
-    print('-' * tamanho)
-
-
-def Busca(Select, From, Tipo):
-    banco = sqlite3.connect('Banco_Dados.db')
-    cursor = banco.cursor()
-    if Select in '*':
-        cursor.execute('SELECT * FROM "' + str(From) + '"')
-        if Tipo in 'all':
-            busca = cursor.fetchall()
-            return busca
-
-        else:
-            busca = cursor.fetchone()
-            return busca
-
-    cursor.execute(f'SELECT {Select} FROM {From}')
-    if Tipo in 'one':
-        busca = cursor.fetchone()
-        return busca
-    elif Tipo in 'all':
-        busca = cursor.fetchall()
-        return busca
+        CriandoBD(cursor, banco)
 
 
 def Update(update, Set, Igual, Where):
-    banco = sqlite3.connect('Banco_Dados.db')
+    banco = sqlite3.connect('BDP.db')
     cursor = banco.cursor()
 
     cursor.execute(
@@ -291,7 +25,7 @@ def Update(update, Set, Igual, Where):
 
 
 def UpdateNome(update, Set, Igual, Where):
-    banco = sqlite3.connect('Banco_Dados.db')
+    banco = sqlite3.connect('BDP.db')
     cursor = banco.cursor()
 
     cursor.execute(
@@ -299,14 +33,44 @@ def UpdateNome(update, Set, Igual, Where):
     banco.commit()
 
 
-def Connecte():
-    caminho = Path('Banco_Dados.db')
-    if caminho.exists():
-        inicio()
-    else:
-        banco = sqlite3.connect('Banco_Dados.db')
-        cursor = banco.cursor()
-        CriandoBD(cursor, banco)
+def Linha(t=30):
+    return '-' * t
+
+
+def Titulo(text):
+    print(Linha())
+    print(f'{text:^30}')
+    print(Linha())
+
+
+def Opcoes(opc, maximo):
+    for pos, o in enumerate(opc):
+        print(f'[{pos}] {o}')
+    print(Linha())
+    tecla = Tecla('Tecla: ', len(opc), maximo)
+    return tecla
+
+
+def Tecla(text, saida, maximo):
+    while True:
+        try:
+            tecla = int(input(text))
+            if 0 <= tecla <= maximo:
+                return tecla
+
+            else:
+                print('\033[31mErro: \033[mOpção inválida, tente novamente')
+                sleep(1)
+        except (TypeError, ValueError):
+            print('\033[31mErro: \033[mOpção inválida, tente novamente')
+            sleep(1)
+        except KeyboardInterrupt:
+            desligado = 2
+            ligado = 1
+            print('\n\033[31mErro: \033[mCaixa de entrada interrompida')
+            Update('Interrupitor', 'Interrupyter', desligado, ligado)
+            sleep(1)
+            return saida
 
 
 def CriandoBD(cursor, banco):
@@ -324,6 +88,11 @@ def CriandoBD(cursor, banco):
             break
 
     cursor.execute("INSERT INTO Jogador VALUES('" + nome + "', 1, 100, 100, 100, 100, 1, 100, 1, 1, 1)")
+
+    # Interrupitor
+    cursor.execute('CREATE TABLE Interrupitor (Interrupyter integer)')
+
+    cursor.execute("INSERT INTO Interrupitor VALUES(1)")
 
     # Morte
     cursor.execute('CREATE TABLE Morte (Nome text, MorteJogador integer, TAtack integer, TDefese integer,'
@@ -353,7 +122,7 @@ def CriandoBD(cursor, banco):
     cursor.execute('CREATE TABLE Colina_Verde (Nome text, Level integer, HP integer, Dano integer,'
                    'DanoElementar integer, Exp integer, Dinheiro integer, Morte integer)')
 
-    #                                                Nome,   Lv,  HP, D, DF, E, D, M
+    #                                                Nome, Lv, HP, D, DF, E, D, M
     cursor.execute("INSERT INTO Colina_Verde VALUES('Rats', 1, 12, 7 , 2, 5, 3, 1)")
     cursor.execute("INSERT INTO Colina_Verde VALUES('Crow', 15, 40, 25, 4, 17, 15, 1)")
     cursor.execute("INSERT INTO Colina_Verde VALUES('Wolf', 30, 70, 47, 6, 34, 29, 1)")
@@ -370,7 +139,7 @@ def CriandoBD(cursor, banco):
     cursor.execute('CREATE TABLE Deserto (Nome text, Level integer, HP integer, Dano integer,'
                    ' DanoElementar integer, Exp integer, Dinheiro integer, Morte integer)')
 
-    #                                               Nome,    Lv,   HP,  D, DF   E,   D,  M
+    #                                             Nome,    Lv,  HP,  D,   DF   E,   D,  M
     cursor.execute("INSERT INTO Deserto VALUES('Scorpion', 135, 350, 300, 24, 230, 200, 1)")
     cursor.execute("INSERT INTO Deserto VALUES('Snake', 150, 378, 320, 26, 245, 212, 1)")
     cursor.execute("INSERT INTO Deserto VALUES('Worm', 165, 408, 342, 28, 262, 226, 1)")
@@ -387,7 +156,7 @@ def CriandoBD(cursor, banco):
     cursor.execute('CREATE TABLE Caverna_de_Minerção (Nome text, Level integer, HP integer, Dano integer,'
                    ' DanoElementar ingeter, Exp integer, Dinheiro integer, Morte integer)')
 
-    #                                                       Nome,  Lv,  HP,  D, DF,  E,    D,  M
+    #                                                       Nome,  Lv,  HP,  D,  DF,  E,   D,  M
     cursor.execute("INSERT INTO Caverna_de_Minerção VALUES('Bat', 285, 700, 580, 44, 450, 400, 1)")
     cursor.execute("INSERT INTO Caverna_de_Minerção VALUES('Gigantula', 300, 728, 600, 46, 465, 412, 1)")
     cursor.execute("INSERT INTO Caverna_de_Minerção VALUES('Dwarf', 315, 758, 622, 48, 482, 426, 1)")
@@ -403,7 +172,7 @@ def CriandoBD(cursor, banco):
     cursor.execute('CREATE TABLE Floresta_Sombria (Nome text, Level integer, HP integer, Dano integer,'
                    ' DanoElementar integer, Exp integer, Dinheiro integer, Morte integer)')
 
-    #                                                       Nome,      Lv,   HP,  D, DF,  E,    D,  M
+    #                                                      Nome,    Lv,  HP,  D,   DF,  E,   D,  M
     cursor.execute("INSERT INTO Floresta_Sombria VALUES('Skeleton', 405, 986, 804, 60, 626, 549, 1)")
     cursor.execute("INSERT INTO Floresta_Sombria VALUES('Zombie', 420, 1014, 824, 62, 641, 561, 1)")
     cursor.execute("INSERT INTO Floresta_Sombria VALUES('Ghost', 435, 1044, 846, 64, 658, 575, 1)")
@@ -424,7 +193,7 @@ def CriandoBD(cursor, banco):
     cursor.execute('CREATE TABLE Polo_Norte (Nome text, Level integer, HP integer, Dano integer, DanoElementar integer,'
                    ' Exp integer, Dinheiro integer, Morte integer)')
 
-    #                                            Nome,      Lv,   HP,   D,  DF    E,   D,  M
+    #                                               Nome,      Lv,   HP,   D,   DF  E,   D,   M
     cursor.execute("INSERT INTO Polo_Norte VALUES('Icy Flame', 600, 1500, 1200, 86, 970, 850, 1)")
     cursor.execute("INSERT INTO Polo_Norte VALUES('Snow Golem', 615, 1528, 1220, 88, 985, 862, 1)")
     cursor.execute("INSERT INTO Polo_Norte VALUES('Mammoth', 630, 1558, 1242, 90, 1002, 876, 1)")
@@ -438,7 +207,7 @@ def CriandoBD(cursor, banco):
     cursor.execute('CREATE TABLE Eletrico (Nome text, Level integer, HP integer, Dano integer,'
                    'DanoElementar integer, Exp integer, Dinheiro integer, Morte integer)')
 
-    #                                                  Nome,           Lv,  HP,   D,  DF,   E,  D,  M
+    #                                                  Nome,       Lv,  HP,   D,   DF,   E,    D,   M
     cursor.execute("INSERT INTO Eletrico VALUES('Electric Flame', 705, 1750, 1400, 100, 1150, 1000, 1)")
     cursor.execute("INSERT INTO Eletrico VALUES('Electric Golem', 720, 1778, 1420, 102, 1165, 1012, 1)")
     cursor.execute("INSERT INTO Eletrico VALUES('Electric Yeti', 735, 1808, 1442, 104, 1182, 1026, 1)")
@@ -451,7 +220,7 @@ def CriandoBD(cursor, banco):
     cursor.execute('CREATE TABLE Vulcão (Nome text, Level integer, HP integer, Dano integer,'
                    'DanoElementar integer, Exp integer, Dinheiro integer, Morte integer)')
 
-    #                                            Nome,   Lv,  HP,   D,    DF,  E,    D,    M
+    #                                           Nome,  Lv,   HP,    D,  DF,   E,    D,   M
     cursor.execute("INSERT INTO Vulcão VALUES('Flame', 795, 1960, 1580, 112, 1270, 1100, 1)")
     cursor.execute("INSERT INTO Vulcão VALUES('Fire Golem', 810, 1988, 1600, 114, 1285, 1112, 1)")
     cursor.execute("INSERT INTO Vulcão VALUES('Wizard', 825, 2018, 1622, 116, 1302, 1126, 1)")
@@ -523,20 +292,22 @@ def CriandoBD(cursor, banco):
 
     # Armas
     cursor.execute(
-        'CREATE TABLE Armas (Nome text, Lv integer, Dano integer, Preco integer, Rec integer, Atack integer, '
-        'Qtde integer, Id integer)')
-    cursor.execute('INSERT INTO Armas VALUES("Espada Inicial", 1, 1, 50, 1, 1, 1, 0)')
-    cursor.execute('INSERT INTO Armas VALUES("Espada Longa", 135, 8, 500, 8, 1, 1, 1)')  # scorpion
-    cursor.execute('INSERT INTO Armas VALUES("Espada Dupla", 285, 26, 1500, 20, 1, 1, 2)')  # Bat
-    cursor.execute('INSERT INTO Armas VALUES("Espada Sombria", 405, 40, 2000, 25, 1, 1, 3)')  # Skeleton
-    cursor.execute('INSERT INTO Armas VALUES("Espada Icy", 600, 50, 3000, 34, 1, 1, 4)')  # Icy
-    cursor.execute('INSERT INTO Armas VALUES("Espada Eletric", 705, 56, 3500, 36, 1, 1, 5)')  # Eletric
-    cursor.execute('INSERT INTO Armas VALUES("Espada Fire", 795, 62, 40600, 40, 1, 1, 6)')  # Fire
+        'CREATE TABLE Armas (Nome text, Lv integer, Dano integer, Preco integer, Rec integer, Ouro integer, '
+        'Exp integer, Qtde integer, Id integer)')
+
+    #                                             nome,       l,  d, p,  r, o, e, q, i
+    cursor.execute('INSERT INTO Armas VALUES("Espada Inicial", 1, 1, 50, 1, 1, 1, 1, 0)')
+    cursor.execute('INSERT INTO Armas VALUES("Espada Longa", 135, 8, 500, 8, 50, 50, 1, 1)')
+    cursor.execute('INSERT INTO Armas VALUES("Espada Dupla", 285, 26, 1500, 20, 100, 100, 1, 2)')
+    cursor.execute('INSERT INTO Armas VALUES("Espada Sombria", 405, 40, 2000, 25, 150, 200, 1, 3)')
+    cursor.execute('INSERT INTO Armas VALUES("Espada Icy", 600, 50, 3000, 34, 200, 400, 1, 4)')
+    cursor.execute('INSERT INTO Armas VALUES("Espada Eletric", 705, 56, 3500, 36, 250, 600, 1, 5)')
+    cursor.execute('INSERT INTO Armas VALUES("Espada Fire", 795, 62, 4000, 40, 300, 800, 1, 6)')
 
     # EspadaJogador
-    cursor.execute('CREATE TABLE EspadaJogador (Nome text, Lv integer, Dano integer, Rec integer, Atack integer, '
-                   'Id integer)')
-    cursor.execute("INSERT INTO EspadaJogador VALUES('vazio', 1, 1, 1, 1, 1)")
+    cursor.execute('CREATE TABLE EspadaJogador (Nome text, Lv integer, Dano integer, Rec integer, Ouro integer, '
+                   'Exp integer, Id integer)')
+    cursor.execute("INSERT INTO EspadaJogador VALUES('vazio', 1, 1, 1, 1, 1, 1)")
 
     # Magias
     cursor.execute('Create TABLE Magias (Nome text, Lv integer, Mana integer, Dano integer, Preco integer,'
@@ -604,64 +375,283 @@ def CriandoBD(cursor, banco):
     cursor.execute("INSERT INTO PocaoJogadorMana VALUES('vazio', 1, 1)")
 
     banco.commit()
-    inicio()
+    Inicio()
 
 
-def inicio():
+
+class Jogador:
+    def __init__(self):
+        banco = sqlite3.connect('BDP.db')
+        cursor = banco.cursor()
+        self.nome = cursor.execute('SELECT Nome FROM Jogador').fetchone()[0]
+        self.lv = cursor.execute('SELECT Level FROM Jogador').fetchone()[0]
+        self.hp = cursor.execute('SELECT HP FROM Jogador').fetchone()[0]
+        self.vida = cursor.execute('SELECT Vida FROM Jogador').fetchone()[0]
+        self.mana = cursor.execute('SELECT Mana FROM Jogador').fetchone()[0]
+        self.qtdemana = cursor.execute('SELECT QtdeMana FROM Jogador').fetchone()[0]
+        self.qtdeexp = cursor.execute('SELECT QtdeExp FROM Jogador').fetchone()[0] - 1
+        self.exp = cursor.execute('SELECT EXP FROM Jogador').fetchone()[0]
+        self.dinheiro = cursor.execute('SELECT Dinheiro FROM Jogador').fetchone()[0] - 1
+        self.diamante = cursor.execute('SELECT Diamante FROM Jogador').fetchone()[0] - 1
+        self.pontos = cursor.execute('SELECT Pontos FROM Jogador').fetchone()[0] - 1
+
+
+class Morte:
+    def __init__(self):
+        banco = sqlite3.connect('BDP.db')
+        cursor = banco.cursor()
+        self.mortejogador = cursor.execute('SELECT MorteJogador FROM Morte').fetchone()[0]  # 1 - Vivo
+        self.tatack = cursor.execute('SELECT TAtack FROM Morte').fetchone()[0]
+        self.tdefese = cursor.execute('SELECT TDefese FROM Morte').fetchone()[0]
+        self.qtdemorte = cursor.execute('SELECT QtdeMorte FROM Morte').fetchone()[0] - 1
+        self.mortepet = cursor.execute('SELECT MortePet FROM Morte').fetchone()[0]  # 2 - Morto
+
+
+class Itens:
+    def __init__(self, ind='0'):
+        banco = sqlite3.connect('BDP.db')
+        cursor = banco.cursor()
+        self.nome = cursor.execute('SELECT Nome FROM Itens').fetchall()[int(ind)][0]
+        self.qtde = cursor.execute('SELECT Qtde FROM Itens').fetchall()[int(ind)][0] - 1
+
+
+class Mapas:
+    def __init__(self, ind):
+        banco = sqlite3.connect('BDP.db')
+        cursor = banco.cursor()
+        self.nome = cursor.execute('SELECT Nome FROM Mapa').fetchall()[ind][0]
+        self.qtdemob = cursor.execute('SELECT QtdeMob FROM Mapa').fetchall()[ind][0]
+
+
+class Mobs:
+    def __init__(self, local, ind=0):
+        banco = sqlite3.connect('BDP.db')
+        cursor = banco.cursor()
+        self.nome = cursor.execute('SELECT Nome FROM "' + str(local) + '"').fetchall()[ind][0]
+        self.lv = cursor.execute('SELECT Level FROM "' + str(local) + '"').fetchall()[ind][0]
+        self.hp = cursor.execute('SELECT HP FROM "' + str(local) + '"').fetchall()[ind][0]
+        self.dano = cursor.execute('SELECT Dano FROM "' + str(local) + '"').fetchall()[ind][0]
+        self.danoelementar = cursor.execute('SELECT DanoElementar FROM "' + str(local) + '"').fetchall()[ind][0]
+        self.exp = cursor.execute('SELECT Exp FROM "' + str(local) + '"').fetchall()[ind][0]
+        self.dinheiro = cursor.execute('SELECT Dinheiro FROM "' + str(local) + '"').fetchall()[ind][0]
+        self.morte = cursor.execute('SELECT Morte FROM "' + str(local) + '"').fetchall()[ind][0] - 1
+
+
+class Fragmentos:
+    def __init__(self, ind=0):
+        banco = sqlite3.connect('BDP.db')
+        cursor = banco.cursor()
+        self.nome = cursor.execute('SELECT Nome FROM Fragmentos').fetchall()[ind][0]
+        self.nomec = cursor.execute('SELECT NomeC FROM Fragmentos').fetchall()[ind][0]
+        self.qtde = cursor.execute('SELECT Qtde FROM Fragmentos').fetchall()[ind][0] - 1
+
+
+class Atributos:
+    def __init__(self):
+        banco = sqlite3.connect('BDP.db')
+        cursor = banco.cursor()
+        self.defesa = cursor.execute('SELECT Defese FROM Atributos').fetchone()[0]
+        self.atack = cursor.execute('SELECT Atack FROM Atributos').fetchone()[0]
+
+
+class Skill:
+    def __init__(self):
+        banco = sqlite3.connect('BDP.db')
+        cursor = banco.cursor()
+        self.defesa = cursor.execute('SELECT Defese FROM Habilidades').fetchone()[0]
+        self.tempodefesa = cursor.execute('SELECT TempoDefese FROM Habilidades').fetchone()[0]
+        self.atack = cursor.execute('SELECT Atack FROM Habilidades').fetchone()[0]
+        self.tempoatack = cursor.execute('SELECT TempoAtack FROM Habilidades').fetchone()[0]
+
+
+class Pet:
+    def __init__(self, ind=0):
+        banco = sqlite3.connect('BDP.db')
+        cursor = banco.cursor()
+        self.nome = cursor.execute('SELECT Nome FROM Pets').fetchall()[ind][0]
+        self.lv = cursor.execute('SELECT Level FROM Pets').fetchall()[ind][0]
+        self.hp = cursor.execute('SELECT HP FROM Pets').fetchall()[ind][0]
+        self.vida = cursor.execute('SELECT Vida FROM Pets').fetchall()[ind][0]
+        self.dano = cursor.execute('SELECT Dano FROM Pets').fetchall()[ind][0]
+        self.qtde = cursor.execute('SELECT Qtde FROM Pets').fetchall()[ind][0] - 1
+        self.exp = cursor.execute('SELECT Exp FROM Pets').fetchall()[ind][0] - 1
+        self.qtdeExp = cursor.execute('SELECT QtdeExp FROM Pets').fetchall()[ind][0]
+        self.preco = cursor.execute('SELECT Preco FROM Pets').fetchall()[ind][0]
+        self.id = cursor.execute('SELECT Id FROM Pets').fetchall()[ind][0]
+        self.ind = cursor.execute('SELECT Ind FROM Pets').fetchall()[ind][0]
+
+
+class PetJogador:
+    def __init__(self):
+        banco = sqlite3.connect('BDP.db')
+        cursor = banco.cursor()
+        self.nome = cursor.execute('SELECT Nome FROM PetsJogador').fetchone()[0]
+        self.lv = cursor.execute('SELECT Level FROM PetsJogador').fetchone()[0]
+        self.hp = cursor.execute('SELECT HP FROM PetsJogador').fetchone()[0]
+        self.vida = cursor.execute('SELECT Vida FROM PetsJogador').fetchone()[0]
+        self.dano = cursor.execute('SELECT Dano FROM PetsJogador').fetchone()[0]
+        self.id = cursor.execute('SELECT id FROM PetsJogador').fetchone()[0]
+
+
+class Lojas:
+    def __init__(self, loja=0):
+        banco = sqlite3.connect('BDP.db')
+        cursor = banco.cursor()
+        self.nome = cursor.execute('SELECT Nome FROM Lojas').fetchall()[loja][0]
+        self.lv = cursor.execute('SELECT Level FROM Lojas').fetchall()[loja][0]
+        self.customadeiras = cursor.execute('SELECT CustoMadeiras FROM Lojas').fetchall()[loja][0]
+        self.custopedras = cursor.execute('SELECT CustoPedras FROM Lojas').fetchall()[loja][0]
+        self.custopeixes = cursor.execute('SELECT CustoPeixes FROM Lojas').fetchall()[loja][0]
+        self.custocouros = cursor.execute('SELECT CustoCouros FROM Lojas').fetchall()[loja][0]
+
+
+class Picaretas:
+    def __init__(self, ind=0):
+        banco = sqlite3.connect('BDP.db')
+        cursor = banco.cursor()
+        self.nome = cursor.execute('SELECT Nome FROM Picaretas').fetchall()[ind][0]
+        self.eficiencia = cursor.execute('SELECT Eficiencia FROM Picaretas').fetchall()[ind][0]
+        self.preco = cursor.execute('SELECT Preco FROM Picaretas').fetchall()[ind][0]
+        self.qtde = cursor.execute('SELECT Qtde FROM Picaretas').fetchall()[ind][0] - 1
+
+
+class Machados:
+    def __init__(self, ind=0):
+        banco = sqlite3.connect('BDP.db')
+        cursor = banco.cursor()
+        self.nome = cursor.execute('SELECT Nome FROM Machados').fetchall()[ind][0]
+        self.eficiencia = cursor.execute('SELECT Eficiencia FROM Machados').fetchall()[ind][0]
+        self.preco = cursor.execute('SELECT Preco FROM Machados').fetchall()[ind][0]
+        self.qtde = cursor.execute('SELECT Qtde FROM Machados').fetchall()[ind][0] - 1
+
+
+class VaraPesca:
+    def __init__(self, ind=0):
+        banco = sqlite3.connect('BDP.db')
+        cursor = banco.cursor()
+        self.nome = cursor.execute('SELECT Nome FROM VaraPesca').fetchall()[ind][0]
+        self.eficiencia = cursor.execute('SELECT Eficiencia FROM VaraPesca').fetchall()[ind][0]
+        self.preco = cursor.execute('SELECT Preco FROM VaraPesca').fetchall()[ind][0]
+        self.qtde = cursor.execute('SELECT Qtde FROM VaraPesca').fetchall()[ind][0] - 1
+
+
+class Armas:
+    def __init__(self, ind=0):
+        banco = sqlite3.connect('BDP.db')
+        cursor = banco.cursor()
+        self.nome = cursor.execute('SELECT Nome FROM Armas').fetchall()[ind][0]
+        self.lv = cursor.execute('SELECT Lv FROM Armas').fetchall()[ind][0]
+        self.dano = cursor.execute('SELECT Dano FROM Armas').fetchall()[ind][0]
+        self.preco = cursor.execute('SELECT Preco FROM Armas').fetchall()[ind][0]
+        self.rec = cursor.execute('SELECT Rec FROM Armas').fetchall()[ind][0]
+        self.ouro = cursor.execute('SELECT Ouro FROM Armas').fetchall()[ind][0]
+        self.exp = cursor.execute('SELECT Exp From Armas').fetchall()[ind][0]
+        self.qtde = cursor.execute('SELECT Qtde FROM Armas').fetchall()[ind][0] - 1
+        self.id = cursor.execute('SELECT Id FROM Armas').fetchall()[ind][0]
+
+
+class ArmaJogador:
+    def __init__(self):
+        banco = sqlite3.connect('BDP.db')
+        cursor = banco.cursor()
+        self.nome = cursor.execute('SELECT Nome FROM EspadaJogador').fetchone()[0]
+        self.lv = cursor.execute('SELECT Lv FROM EspadaJogador').fetchone()[0]
+        self.dano = cursor.execute('SELECT Dano FROM EspadaJogador').fetchone()[0]
+        self.rec = cursor.execute('SELECT Rec FROM EspadaJogador').fetchone()[0]
+        self.ouro = cursor.execute('SELECT Ouro FROM EspadaJogador').fetchone()[0]
+        self.exp = cursor.execute('SELECT Exp FROM EspadaJogador').fetchone()[0]
+        self.id = cursor.execute('SELECT Id FROM EspadaJogador').fetchone()[0]
+
+
+class Magias:
+    def __init__(self, ind=0):
+        banco = sqlite3.connect('BDP.db')
+        cursor = banco.cursor()
+        self.nome = cursor.execute('SELECT Nome FROM Magias').fetchall()[ind][0]
+        self.lv = cursor.execute('SELECT Lv FROM Magias').fetchall()[ind][0]
+        self.mana = cursor.execute('SELECT Mana FROM Magias').fetchall()[ind][0]
+        self.dano = cursor.execute('SELECT Dano FROM Magias').fetchall()[ind][0]
+        self.preco = cursor.execute('SELECT Preco FROM Magias').fetchall()[ind][0]
+        self.lvmin = cursor.execute('SELECT Lvmin FROM Magias').fetchall()[ind][0]
+        self.tempo = cursor.execute('SELECT tempo FROM Magias').fetchall()[ind][0]
+        self.qtde = cursor.execute('SELECT Qtde FROM Magias').fetchall()[ind][0] - 1
+        self.id = cursor.execute('SELECT Id FROM Magias').fetchall()[ind][0]
+
+
+class MagiaJogador:
+    def __init__(self):
+        banco = sqlite3.connect('BDP.db')
+        cursor = banco.cursor()
+        self.nome = cursor.execute('SELECT Nome FROM MagiaJogador').fetchone()[0]
+        self.lv = cursor.execute('SELECT Lv FROM MagiaJogador').fetchone()[0]
+        self.mana = cursor.execute('SELECT Mana FROM MagiaJogador').fetchone()[0]
+        self.dano = cursor.execute('SELECT Dano FROM MagiaJogador').fetchone()[0]
+        self.tempo = cursor.execute('SELECT tempo FROM MagiaJogador').fetchone()[0]
+        self.id = cursor.execute('SELECT Id FROM MagiaJogador').fetchone()[0]
+
+
+class PocoesHP:
+    def __init__(self, ind=0):
+        banco = sqlite3.connect('BDP.db')
+        cursor = banco.cursor()
+        self.nome = cursor.execute('SELECT Nome FROM Bolsa').fetchall()[ind][0]
+        self.rec = cursor.execute('SELECT Rec FROM Bolsa').fetchall()[ind][0]
+        self.qtde = cursor.execute('SELECT Qtde FROM Bolsa').fetchall()[ind][0] - 1
+        self.preco = cursor.execute('SELECT Preco FROM Bolsa').fetchall()[ind][0]
+
+
+class PocoesMana:
+    def __init__(self, ind=0):
+        banco = sqlite3.connect('BDP.db')
+        cursor = banco.cursor()
+        self.nome = cursor.execute('SELECT Nome FROM PocaoMana').fetchall()[ind][0]
+        self.rec = cursor.execute('SELECT Rec FROM PocaoMana').fetchall()[ind][0]
+        self.qtde = cursor.execute('SELECT Qtde FROM PocaoMana').fetchall()[ind][0] - 1
+        self.preco = cursor.execute('SELECT Preco FROM PocaoMana').fetchall()[ind][0]
+
+
+class PocaoJogadorHP:
+    def __init__(self):
+        banco = sqlite3.connect('BDP.db')
+        cursor = banco.cursor()
+        self.nome = cursor.execute('SELECT Nome FROM PocaoJogador').fetchone()[0]
+        self.uso = cursor.execute('SELECT uso FROM PocaoJogador').fetchone()[0]
+        self.id = cursor.execute('SELECT Id FROM PocaoJogador').fetchone()[0]
+
+
+class PocaoJogadorMana:
+    def __init__(self):
+        banco = sqlite3.connect('BDP.db')
+        cursor = banco.cursor()
+        self.nome = cursor.execute('SELECT Nome FROM PocaoJogadorMana').fetchone()[0]
+        self.uso = cursor.execute('SELECT uso FROM PocaoJogadorMana').fetchone()[0]
+        self.id = cursor.execute('SELECT Id FROM PocaoJogadorMana').fetchone()[0]
+
+
+class Interru:
+    def __init__(self):
+        banco = sqlite3.connect('BDP.db')
+        cursor = banco.cursor()
+        self.interrupitor = cursor.execute('SELECT Interrupyter FROM Interrupitor').fetchone()[0]
+
+
+def Inicio():
     while True:
-        print('Funções de controle:')
-        print('[A] Batalhar')
-        print('[B] Informações')
-        print('[C] Loja')
-        print('[D] Centro de Treinamento')
-        print('[E] Equipamentos')
-        while True:
-            tecla = str(input('Tecla: ')).upper().strip()
-            if tecla in 'ABCDE':
-                break
-            else:
-                print('\033[31mErro:  \033[mOpção inválida, tente novamente')
+        Titulo('MENU')
+        tecla = Opcoes(['Batalhar', 'Informações', 'Lojas', 'Centro De Treinamento', 'Equipamentos', 'Sair Do Jogo'], 5)
 
-        if tecla in 'A':
+        if tecla == 0:
+            Mapa()
+
+        elif tecla == 1:
             while True:
-                linha('MAPA')
-                for num in range(0, 7):
-                    local = Mapas(num)
-                    print(f'[{num}] {str(local.nome).replace('_', ' ')}')
-                print('[C] Voltar')
-                while True:
-                    tecla1 = str(input('Tecla: ')).strip().upper()
-                    if tecla1 in 'C':
-                        break
-                    elif 0 <= int(tecla1) < 7:
-                        break
-                    else:
-                        print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-
-                if tecla1 in 'C':
-                    break
-                else:
-                    tecla1 = int(tecla1)
-                    locais = Mapas(tecla1).nome
-                    Mapa(locais, tecla1)
-
-        elif tecla in 'B':
-            while True:
-                linha('Informações')
-                print('[0] Personagem')
-                print('[1] Atributos')
-                print('[2] Quantidade de mob matado')
-                print('[C] Voltar')
-                while True:
-                    tecla1 = str(input('Tecla: ')).strip().upper()
-                    if tecla1 in '012C':
-                        break
-                    else:
-                        print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-                if tecla1 in 'C':
+                Titulo('INFORMAÇÕES')
+                tecla = Opcoes(['Personagem', 'Atributos', 'Quantidade de mob matado', 'Voltar'], 3)
+                if tecla == 3:
                     break
 
-                elif tecla1 in '0':
+                elif tecla == 0:
+                    print(Linha())
                     jogador = Jogador()
                     morte = Morte()
                     print(f'Nome: {jogador.nome}')
@@ -672,80 +662,69 @@ def inicio():
                     print(f'Quantidade de Morte: {morte.qtdemorte}')
                     sleep(2)
 
-                elif tecla1 in '1':
+                elif tecla == 1:
+                    print(Linha())
                     atributos()
 
-                elif tecla1 in '2':
-                    linha('Quantidade de Mobs Matados')
+                elif tecla == 2:
+                    Titulo('Quantidade de Mobs Matados')
                     sleep(1)
                     Mortesmobs()
 
-        elif tecla in 'C':
-            linha('Lojas')
-            while True:
-                print('[0] Loja de Poções')
-                print('[1] Loja de Ferramentas')
-                print('[2] Loja de Pets')
-                print('[3] Loja de Magias')
-                print('[4] Loja de Armas')
-                print('[C] Voltar')
-                while True:
-                    tecla2 = str(input('Tecla: ')).strip().upper()
-                    if tecla2 in '01234C':
-                        break
-                    else:
-                        print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-                if tecla2 in 'C':
+                if Interru().interrupitor == 2:
                     break
 
-                elif tecla2 in '0':
-                    lojapot(int(tecla2))
+        elif tecla == 2:
+            while True:
+                Titulo('LOJAS')
+                tecla1 = Opcoes(['Loja de Poções', 'Loja de Ferramentas', 'Loja de Pets', 'Loja de Magias',
+                                 'Loja de Armas', 'Voltar'], 5)
 
-                elif tecla2 in '1':
-                    lojaferramentas(int(tecla2))
+                if tecla1 == 0:
+                    lojapot(tecla1)
 
-                elif tecla2 in '2':
-                    lojapet(int(tecla2))
+                elif tecla1 == 1:
+                    lojaferramentas(tecla1)
 
-                elif tecla2 in '3':
-                    lojamagia(int(tecla2))
+                elif tecla1 == 2:
+                    lojapet(tecla1)
 
-                elif tecla2 in '4':
-                    lojaarmas(int(tecla2))
+                elif tecla1 == 3:
+                    lojamagia(tecla1)
 
-        elif tecla in 'D':
+                elif tecla1 == 4:
+                    lojaarmas(tecla1)
+
+                elif tecla1 == 5:
+                    break
+
+                if Interru().interrupitor == 2:
+                    break
+
+        elif tecla == 3:
+            Titulo('CENTRO DE TREINAMENTOS')
             habilidades()
 
-        elif tecla in 'E':
+        elif tecla == 4:
             while True:
-                linha('EQUIPAMENTOS')
-                print('[0] Fragmentos')
-                print('[1] Mochila')
-                print('[2] Ferramentas')
-                print('[3] Armas')
-                print('[4] Pets')
-                print('[5] Magias')
-                print('[6] Poções')
-                print('[C] Voltar')
-                while True:
-                    tecla1 = str(input('Tecla: ')).upper().strip()
-                    if tecla1 in '0123456C':
-                        break
-                    else:
-                        print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-                if tecla1 in 'C':
+                Titulo('EQUIPAMENTOS')
+                sleep(1)
+                tecla1 = Opcoes(['Fragmentos', 'Mochila', 'Ferramentas', 'Armas', 'Pets', 'Magias', 'Poções',
+                                 'Voltar'], 7)
+
+                if tecla1 == 7:
                     break
 
-                elif tecla1 in '0':
-                    linha('Quantidade de Fragmentos')
+                elif tecla1 == 0:
+                    Titulo('Quantidade de Fragmentos')
                     for num in range(0, 7):
                         fragmentos = Fragmentos(num)
                         if fragmentos.qtde >= 1:
                             print(f'{fragmentos.nomec} = {fragmentos.qtde}')
                     sleep(1)
 
-                elif tecla1 in '1':
-                    linha('Mochila')
+                elif tecla1 == 1:
+                    Titulo('Mochila')
                     for pos in range(0, 4):
                         items = Itens(pos)
                         if items.qtde > 0:
@@ -753,8 +732,8 @@ def inicio():
                             sleep(1)
                     sleep(2)
 
-                elif tecla1 in '2':
-                    linha('Ferramentas')
+                elif tecla1 == 2:
+                    Titulo('Ferramentas')
                     for pos in range(0, 4):
                         picaretas = Picaretas(pos)
                         if picaretas.qtde >= 1:
@@ -776,96 +755,11 @@ def inicio():
                             sleep(1)
                     sleep(1)
 
-                elif tecla1 in '3':
-                    while True:
-                        linha('Armas')
-                        print('[0] Escolher Arma')
-                        print('[1] Melhorar Arma')
-                        print('[C] Voltar')
-                        while True:
-                            tecla2 = str(input('Tecla: ')).strip().upper()
-                            if tecla2 in '01C':
-                                break
-                            else:
-                                print('\033[31mErro:  \033[mOpção inválida, tente novamente')
+                elif tecla1 == 3:
+                    Espadas()
 
-                        if tecla2 in 'C':
-                            break
-
-                        lista = []
-                        for pos in range(0, 7):
-                            Espadas = Armas(pos)
-                            fragmentos = Fragmentos(pos)
-                            if Espadas.qtde >= 1:
-                                lista.append(pos)
-                                if tecla2 in '0':
-                                    if len(lista) == 1:
-                                        linha('Usar qual Espada durante a batalha')
-                                    print(f'[{pos}] {Espadas.nome} Lv.{Espadas.lv} = ({Espadas.dano} Dano) '
-                                          f'({Espadas.atack} Atack) ({Espadas.rec} Rec)')
-                                    sleep(1)
-                                elif tecla2 in '1':
-                                    if len(lista) == 1:
-                                        linha('Melhorar qual Espada')
-                                    print(f'[{pos}] {Espadas.nome} Lv.{Espadas.lv} ({Espadas.dano} Dano)'
-                                          f' ({Espadas.atack} Atack) ({Espadas.rec} Rec) = 1 '
-                                          f'{fragmentos.nomec}')
-                                    sleep(0.5)
-
-                        if len(lista) >= 1:
-                            print('[C] Voltar')
-                            while True:
-                                escolha = str(input('Tecla: ')).strip().upper()
-                                if escolha.isnumeric():
-                                    escolha = int(escolha)
-                                    if escolha in lista:
-                                        fragmentos = Fragmentos(escolha)
-                                        if tecla2 in '1' and fragmentos.qtde >= 1:
-                                            break
-                                        elif tecla2 in '0':
-                                            break
-                                        else:
-                                            print('\033[33mErro: \033[mFragmentos insuficiente.')
-                                    else:
-                                        print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-                                elif escolha in 'C':
-                                    break
-                                else:
-                                    print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-                            if str(escolha) in 'C':
-                                pass
-                            else:
-                                Espadas = Armas(escolha)
-                                if tecla2 in '0':
-                                    armajg = ArmaJogador()
-                                    UpdateNome('EspadaJogador', 'Id', Espadas.id, armajg.nome)
-                                    UpdateNome('EspadaJogador', 'Lv', Espadas.lv, armajg.nome)
-                                    UpdateNome('EspadaJogador', 'Dano', Espadas.dano, armajg.nome)
-                                    UpdateNome('EspadaJogador', 'Atack', Espadas.atack, armajg.nome)
-                                    UpdateNome('EspadaJogador', 'Rec', Espadas.rec, armajg.nome)
-                                    UpdateNome('EspadaJogador', 'Nome', Espadas.nome, armajg.nome)
-                                    print(f'Você escolheu usar a {Espadas.nome}')
-                                    sleep(2)
-
-                                elif tecla2 in '1':
-                                    fragmentos = Fragmentos(escolha)
-                                    UpdateNome('Armas', 'Dano', Espadas.dano + 1, Espadas.nome)
-                                    UpdateNome('Armas', 'Rec', Espadas.rec + 1, Espadas.nome)
-                                    UpdateNome('Armas', 'Lv', Espadas.lv + 1, Espadas.nome)
-                                    UpdateNome('Fragmentos', 'Qtde', fragmentos.qtde, fragmentos.nome)
-                                    armaj = ArmaJogador()
-                                    if armaj.nome not in 'vazio':
-                                        UpdateNome('EspadaJogador', 'Dano', armaj.dano + 1, armaj.nome)
-                                        UpdateNome('EspadaJogador', 'Rec', armaj.rec + 1, armaj.nome)
-                                        UpdateNome('EspadaJogador', 'Lv', armaj.lv + 1, armaj.nome)
-                                    linha('MELHORIA DA ESPADA')
-                                    Espadas = Armas(escolha)
-                                    print(f'Você melhorou a {Espadas.nome}: \ndano {Espadas.dano}'
-                                          f'\natack {Espadas.atack} \nrec {Espadas.rec}')
-                                    sleep(3)
-
-                elif tecla1 in '4':
-                    linha('Pets')
+                elif tecla1 == 4:
+                    Titulo('Pets')
                     lista = []
                     for pos in range(0, 7):
                         pets = Pet(pos)
@@ -878,24 +772,12 @@ def inicio():
                             sleep(1)
 
                     if len(lista) >= 1:
-                        print('[C] Voltar')
-                        while True:
-                            escolha = str(input('Tecla: ')).strip().upper()
-                            if escolha.isnumeric():
-                                escolha = int(escolha)
-                                if escolha in lista:
-                                    break
-                                else:
-                                    print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-
-                            elif escolha in 'C':
-                                break
-                            else:
-                                print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-
-                        if str(escolha) in 'C':
+                        print(f'[{lista[-1] + 1}] Voltar')
+                        escolha = Tecla('Tecla: ', lista[-1] + 1, lista[-1] + 1)
+                        if escolha == lista[-1] + 1:
                             pass
-                        else:
+
+                        elif escolha in lista:
                             petjg = PetJogador()
                             pets = Pet(escolha)
                             UpdateNome('PetsJogador', 'Id', pets.id, petjg.nome)
@@ -906,10 +788,12 @@ def inicio():
                             UpdateNome('PetsJogador', 'Nome', pets.nome, petjg.nome)
                             print(f'Você escolheu usar o Pet {pets.nome}')
                             sleep(2)
-                    sleep(2)
 
-                elif tecla1 in '5':
-                    linha('Magias')
+                        if Interru().interrupitor == 2:
+                            break
+
+                elif tecla1 == 5:
+                    Titulo('Magias')
                     lista = []
                     for pos in range(0, 7):
                         magias = Magias(pos)
@@ -918,32 +802,16 @@ def inicio():
                             if len(lista) == 1:
                                 print('Usar qual Magia durante a batalha:')
                                 sleep(1)
-                            print(
-                                f'[{pos}] {magias.nome} ({magias.dano - 10}-{magias.dano} dano)'
-                                f' ({magias.mana} mana)')
+                            print(f'[{pos}] {magias.nome} ({magias.dano - 10}-{magias.dano} dano) = ({magias.mana} mana)')
                             sleep(1)
 
-                    if len(lista) == 0:
-                        sleep(2)
-                        pass
-                    else:
-                        print('[C] Voltar')
-                        while True:
-                            escolha = str(input('Tecla: ')).strip().upper()
-                            if escolha in 'C':
-                                break
-                            elif escolha.isnumeric():
-                                escolha = int(escolha)
-                                if escolha in lista:
-                                    break
-                                else:
-                                    print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-                            else:
-                                print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-
-                        if escolha == 'C':
+                    if len(lista) >= 0:
+                        print(f'[{lista[-1] + 1}] Voltar')
+                        escolha = Tecla('Tecla: ', lista[-1] + 1, lista[-1] + 1)
+                        if escolha == lista[-1] + 1:
                             pass
-                        else:
+
+                        elif tecla in lista:
                             magiajg = MagiaJogador()
                             magias = Magias(escolha)
                             UpdateNome('MagiaJogador', 'Dano', magias.dano, magiajg.nome)
@@ -953,212 +821,337 @@ def inicio():
                             print(f'Você escolheu usar a magia {magias.nome}')
                             sleep(3)
 
-                elif tecla1 in '6':
-                    linha('Poções')
-                    while True:
-                        print('[0] Poções de Vida')
-                        print('[1] Poções de Mana')
-                        print('[C] Voltar')
-                        while True:
-                            tecla3 = str(input('Tecla: ')).strip().upper()
-                            if tecla3 in '01C':
-                                break
-                            else:
-                                print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-                        if tecla3 in 'C':
+                        if Interru().interrupitor == 2:
                             break
-                        listapocao = []
-                        for pos in range(0, 7):
-                            if tecla3 in '0':
-                                pocoes = PocoesHP(pos)
-                                f = f'[{pos}] {pocoes.nome} (+{pocoes.rec}HP) = {pocoes.qtde}'
-                            else:
-                                pocoes = PocoesMana(pos)
-                                f = f'[{pos}] {pocoes.nome} (+{pocoes.rec}Mana) = {pocoes.qtde}'
-                            if pocoes.qtde > 0:
-                                listapocao.append(str(pos))
-                                if len(listapocao) == 1:
-                                    print('Usar qual Poção durante a batalha:')
-                                print(f)
 
-                        if len(listapocao) > 0:
-                            while True:
-                                tecla4 = str(input('tecla: ')).strip().upper()
-                                if tecla4 in listapocao:
-                                    break
-                                else:
-                                    print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-                            jogador = Jogador()
-                            if tecla3 in '0':
-                                Barra = jogador.hp
-                                f = 'Vida'
-                                fron = 'PocaoJogador'
-                                pocaojg = PocaoJogadorHP()
-                                pocoes = PocoesHP(int(tecla4))
-                            else:
-                                Barra = jogador.qtdemana
-                                f = 'Mana'
-                                fron = 'PocaoJogadorMana'
-                                pocaojg = PocaoJogadorMana()
-                                pocoes = PocoesMana(int(tecla4))
+                elif tecla1 == 6:
+                    Pocoes()
 
-                            while True:
-                                strtecla = str(input(f'Usar a poção quando a {f} estiver menor ou igual a: '))
-                                if strtecla.isnumeric():
-                                    recquando = int(strtecla)
-                                    if Barra >= recquando >= 0:
-                                        tecla4 = int(tecla4)
-                                        break
-                                    else:
-                                        print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-                                else:
-                                    print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-
-                            pot = pocoes.nome
-                            UpdateNome(fron, 'uso', recquando, pocaojg.nome)
-                            UpdateNome(fron, 'Id', tecla4, pocaojg.nome)
-                            UpdateNome(fron, 'Nome', pot, pocaojg.nome)
-                            print(
-                                F'Você usará a {pot} quando sua {f} estiver menor ou igual a {recquando}/{Barra}')
-                            sleep(3)
-
-
-def Mapa(locais, tecla1):
-    while True:
-        linha('Mobs')
-        mapa = Mapas(tecla1)
-        boss = randint(1, 100)
-        if boss <= 2:
-            maxi = mapa.qtdemob
-            for num in range(0, maxi):
-                mob = Mobs(locais, num)
-                print(f'[{num}] {mob.nome}')
-        else:
-            maxi = mapa.qtdemob - 1
-            for num in range(0, maxi):
-                mob = Mobs(locais, num)
-                print(f'[{num}] {mob.nome}')
-
-        print('[C] Voltar')
-        while True:
-            tecla2 = str(input('Tecla: ')).strip().upper()
-            if tecla2 in '':
-                print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-
-            elif tecla2 in 'C':
-                break
-
-            elif 0 <= int(tecla2) < maxi:
-                break
-            else:
-                print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-
-        if tecla2 in 'C':
-            break
-
-        tecla2 = int(tecla2)
-        mobs = Mobs(locais, tecla2)
-
-        if mobs.nome not in ['Madeira', 'Pedras', 'Peixes']:
-            pass
-        else:
-            coletaitens(locais, tecla2)
-            break
-        print(f'Você encontrou um(a): {mobs.nome}')
-        sleep(3)
-        print('-=' * 20)
-        HPanimal, Danoanimal = infobatalha(locais, tecla1, tecla2)
-        print(f'Mob: {mobs.nome} Lv.{mobs.lv:.0f} \nHP: {HPanimal} \nDano: {Danoanimal}'
-              f' \nDinheiro: {mobs.dinheiro} \nExp: {mobs.exp}')
-        print('-=' * 20)
-        sleep(3)
-
-        atributo = Atributos()
-        Espada = ArmaJogador()
-        pet = PetJogador()
-        magia = MagiaJogador()
-        skill = Skill()
-        jogador = Jogador()
-        if Espada.id == tecla1 and Espada.nome not in 'vazio':
-            atack = atributo.atack + skill.atack + Espada.atack + Espada.dano
-        else:
-            atack = atributo.atack + skill.atack
-
-        print(f'Jogador: {jogador.nome} Lv.{jogador.lv}\nHP: {jogador.vida}/{jogador.hp} \nMana: {jogador.mana}/'
-              f'{jogador.qtdemana} \nDano: {atack - 4}-{atack}\nDefesa: {atributo.defesa + skill.defesa}')
-        if Espada.nome not in 'vazio' and tecla1 == Espada.id:
-            print(f'Rec: {Espada.rec}')
-
-        if pet.nome not in 'vazio' and tecla1 == pet.id:
-            print(f'Pet: {pet.nome} ({pet.vida}/{pet.hp}HP) ({pet.dano} Dano)')
-            sleep(1)
-
-        if magia.nome not in 'vazio' and tecla1 == magia.id:
-            print(f'Magia: ({magia.dano - 10}-{magia.dano} Dano) ({magia.mana} Mana)')
-            sleep(1)
-
-        print('-=' * 20)
-        sleep(3)
-        while True:
-            print('[0] Atacar')
-            print('[1] Recuar')
-            tecla3 = str(input('Tecla: ')).strip()
-            if tecla3 in '01':
-                break
-            else:
-                print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-        if tecla3 in '1':
-            pass
-        elif tecla3 in '0':
-            if mobs.nome in 'Boss':
-                atacar = 1
-                pass
-            else:
-                while True:
-                    atacar = str(input('Looping de quantas vezes (Máximo 10 vezes): ')).strip()
-                    if atacar.isnumeric():
-                        atacar = int(atacar)
-                        if atacar > 10 or atacar < 1:
-                            print('\033[31mErro:  \033[mQuantidade não possivel')
-                        else:
-                            break
-                    else:
-                        print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-            sleep(1)
-            for v in range(1, atacar + 1):
-                if v > 1:
-                    print(f'Você encontrou outro(a) {mobs.nome}')
-                    sleep(2)
-                HPanimal, Danoanimal = infobatalha(locais, tecla1, tecla2)
-                batalha(locais, tecla1, tecla2, HPanimal, Danoanimal, atack)
-                morte = Morte()
-                if morte.mortejogador == 2:
-                    UpdateNome('Morte', 'MorteJogador', 1, jogador.nome)
+                if Interru().interrupitor == 2:
                     break
 
+        elif tecla == 5:
+            break
 
-def infobatalha(locais, tecla1, tecla2):
-    mobs = Mobs(locais, tecla2)
+        if Interru().interrupitor == 2:
+            Update('Interrupitor', 'Interrupyter', 1, 2)
+            break
+
+
+def Espadas():
+    while True:
+        Titulo('Armas')
+        tecla2 = Opcoes(['Escolher Arma', 'Melhorar Arma', 'Voltar'], 2)
+        lista = []
+        if tecla2 == 2:
+            break
+
+        elif tecla2 == 0 or tecla2 == 1:
+            while True:
+                for pos in range(0, 7):
+                    espadas = Armas(pos)
+                    fragmentos = Fragmentos(pos)
+                    if espadas.qtde >= 1:
+                        lista.append(pos)
+                        if tecla2 == 0:
+                            if len(lista) == 1:
+                                print('Usar qual Espada durante a batalha')
+                            print(f'[{pos}] {espadas.nome} Lv.{espadas.lv} = ({espadas.dano} Atack) '
+                                  f'({espadas.rec} Rec) ({espadas.ouro} Ouro) ({espadas.exp} Exp)')
+                            sleep(1)
+                        elif tecla2 == 1:
+                            if len(lista) == 1:
+                                print('Melhorar qual Espada')
+                            print(f'[{pos}] {espadas.nome} Lv.{espadas.lv} ({espadas.dano} Atack)'
+                                  f'({espadas.rec} Rec) ({espadas.ouro} Ouro) ({espadas.exp} Exp) = 1 '
+                                  f'{fragmentos.nomec}')
+                            sleep(0.5)
+
+                if len(lista) >= 1:
+                    print(f'[{lista[-1] + 1}] Voltar')
+                    escolha = Tecla('Tecla: ', lista[-1] + 1, lista[-1] + 1)
+                    fragmentos = Fragmentos(escolha)
+                    espadas = Armas(escolha)
+                    if escolha == lista[-1] + 1:
+                        break
+
+                    elif tecla2 == 0:
+                        armajg = ArmaJogador()
+                        UpdateNome('EspadaJogador', 'Id', espadas.id, armajg.nome)
+                        UpdateNome('EspadaJogador', 'Lv', espadas.lv, armajg.nome)
+                        UpdateNome('EspadaJogador', 'Dano', espadas.dano, armajg.nome)
+                        UpdateNome('EspadaJogador', 'Ouro', espadas.ouro, armajg.nome)
+                        UpdateNome('EspadaJogador', 'Exp', espadas.exp, armajg.nome)
+                        UpdateNome('EspadaJogador', 'Rec', espadas.rec, armajg.nome)
+                        UpdateNome('EspadaJogador', 'Nome', espadas.nome, armajg.nome)
+                        print(f'Você escolheu usar a {espadas.nome}')
+                        sleep(2)
+
+                    elif tecla2 == 1 and fragmentos.qtde >= 1:
+                        tecla3 = Opcoes(['Atack', 'Rec', 'Ouro', 'Exp', 'Voltar'], 5)
+                        armaj = ArmaJogador()
+                        Titulo('MELHORIA DA ESPADA')
+                        espadas = Armas(escolha)
+                        print(f'Você melhorou a {espadas.nome}', end=':')
+
+                        if tecla3 == 0:
+                            UpdateNome('Armas', 'Dano', espadas.dano + 1, espadas.nome)
+                            if armaj.nome not in 'vazio':
+                                UpdateNome('EspadaJogador', 'Dano', armaj.dano + 1, armaj.nome)
+                            print(f'Dano {espadas.dano}')
+
+                        elif tecla3 == 1:
+                            UpdateNome('Armas', 'Rec', espadas.rec + 1, espadas.nome)
+                            if armaj.nome not in 'vazio':
+                                UpdateNome('EspadaJogador', 'Rec', armaj.rec + 1, armaj.nome)
+                            print(f'Rec {espadas.rec}')
+
+                        elif tecla3 == 2:
+                            UpdateNome('Armas', 'Ouro', espadas.ouro + 1, espadas.nome)
+                            if armaj.nome not in 'vazio':
+                                UpdateNome('EspadaJogador', 'Ouro', armaj.ouro + 1, armaj.nome)
+                            print(f'Ouro {espadas.ouro}')
+
+                        elif tecla3 == 3:
+                            UpdateNome('Armas', 'Exp', espadas.exp + 1, espadas.nome)
+                            if armaj.nome not in 'vazio':
+                                UpdateNome('EspadaJogador', 'Exp', armaj.exp + 1, armaj.nome)
+                            print(f'Exp {espadas.exp}')
+
+                        elif tecla3 == 4:
+                            break
+
+                        if Interru().interrupitor == 2:
+                            break
+
+                        else:
+                            UpdateNome('Fragmentos', 'Qtde', fragmentos.qtde, fragmentos.nome)
+                            UpdateNome('Armas', 'Lv', espadas.lv + 1, espadas.nome)
+                            if armaj.nome not in 'vazio':
+                                UpdateNome('EspadaJogador', 'Lv', armaj.lv + 1, armaj.nome)
+
+                            print(Linha())
+                            sleep(3)
+
+                    elif tecla2 == 1 and fragmentos.qtde == 0:
+                        print('\033[33mErro: \033[mFragmentos insuficiente.')
+
+                    if Interru().interrupitor == 2:
+                        break
+
+        if Interru().interrupitor == 2:
+            break
+
+
+def Pocoes():
+    while True:
+        Titulo('Poções')
+        tecla2 = Opcoes(['Poções de Vida', 'Poções de Mana', 'Voltar'], 2)
+
+        if tecla2 == 2:
+            break
+
+        elif tecla2 == 1 or tecla2 == 0:
+            lista = []
+            for pos in range(0, 7):
+                if tecla2 == 0:
+                    pocoes = PocoesHP(pos)
+                    f = f'[{pos}] {pocoes.nome} (+{pocoes.rec}HP) = {pocoes.qtde}'
+                else:
+                    pocoes = PocoesMana(pos)
+                    f = f'[{pos}] {pocoes.nome} (+{pocoes.rec}Mana) = {pocoes.qtde}'
+                if pocoes.qtde > 0:
+                    lista.append(pos)
+                    if len(lista) == 1:
+                        print('Usar qual Poção durante a batalha:')
+                    print(f)
+
+            if len(lista) > 0:
+                tecla3 = Tecla('Tecla: ', lista[-1] + 1, lista[-1] + 1)
+                if tecla3 in lista:
+                    jogador = Jogador()
+                    if tecla2 == 0:
+                        Barra = jogador.hp
+                        f = 'Vida'
+                        fron = 'PocaoJogador'
+                        pocaojg = PocaoJogadorHP()
+                        pocoes = PocoesHP(tecla3)
+                    else:
+                        Barra = jogador.qtdemana
+                        f = 'Mana'
+                        fron = 'PocaoJogadorMana'
+                        pocaojg = PocaoJogadorMana()
+                        pocoes = PocoesMana(tecla3)
+
+                    recquando = Tecla(f'Usar a poção quando a {f} estiver menor ou igual a: ', 0, Barra)
+                    if 0 <= recquando <= Barra:
+                        pot = pocoes.nome
+                        UpdateNome(fron, 'uso', recquando, pocaojg.nome)
+                        UpdateNome(fron, 'Id', tecla3, pocaojg.nome)
+                        UpdateNome(fron, 'Nome', pot, pocaojg.nome)
+                        print(
+                            F'Você usará a {pot} quando sua {f} estiver menor ou igual a {recquando}/{Barra}')
+                        sleep(3)
+
+                    if Interru().interrupitor == 2:
+                        break
+
+                if Interru().interrupitor == 2:
+                    break
+
+        if Interru().interrupitor == 2:
+            break
+
+
+def Mapa():
+    while True:
+        Titulo('MAPA')
+        idlocal = Opcoes(['Colina Verde', 'Deserto', 'Caverna de Minerção', 'Floresta Sombria', 'Polo Norte',
+                          'Eletrico', 'Vulcão', 'Voltar'], 7)
+
+        if 0 <= idlocal < 7:
+            mobs(idlocal)
+
+        elif idlocal == 7:
+            break
+
+        if Interru().interrupitor == 2:
+            break
+
+
+def mobs(idlocal):
+    boss = randint(1, 100)
+    while True:
+        Titulo('MOBS')
+        local = Mapas(idlocal)
+        if boss <= 2:
+            maxi = local.qtdemob
+            for num in range(0, maxi):
+                monstro = Mobs(local.nome, num)
+                print(f'[{num:2}] {monstro.nome}')
+
+        else:
+            maxi = local.qtdemob - 1
+            for num in range(0, maxi):
+                monstro = Mobs(local.nome, num)
+                print(f'[{num:2}] {monstro.nome}')
+        print(f'[{maxi:2}] Voltar')
+        idmob = Tecla('Tecla: ', maxi + 1, maxi)
+
+        if idmob == maxi:
+            break
+
+        elif 0 <= idmob < maxi:
+            mob = Mobs(local.nome, idmob)
+            if mob.nome in ['Madeira', 'Pedras', 'Peixes']:
+                coletaitens(idmob)
+                if Interru().interrupitor == 2:
+                    break
+
+            else:
+                print(f'Você encontrou um(a): {mob.nome}')
+                sleep(3)
+                print(Linha())
+
+                skill = Skill()
+                atributo = Atributos()
+                Espada = ArmaJogador()
+                pet = PetJogador()
+                magia = MagiaJogador()
+                jogador = Jogador()
+
+                if Espada.id == idlocal and Espada.nome not in 'vazio':
+                    atack = atributo.atack + skill.atack + Espada.dano
+                    moeda = mob.dinheiro + Espada.ouro
+                    exp = mob.exp + Espada.exp
+
+                else:
+                    atack = atributo.atack + skill.atack
+                    moeda = mob.dinheiro
+                    exp = mob.exp
+
+                HPanimal, Danoanimal = infobatalha(local.nome, idlocal, idmob)
+                print(f'Mob: {mob.nome} Lv.{mob.lv:.0f} \nHP: {HPanimal} \nDano: {Danoanimal}'
+                      f' \nDinheiro: {moeda} \nExp: {exp}')
+                print(Linha())
+                sleep(3)
+
+                print(f'Jogador: {jogador.nome} Lv.{jogador.lv}\nHP: {jogador.vida}/{jogador.hp} \nMana: '
+                      f'{jogador.mana} {jogador.qtdemana} \nDano: {atack - 4}-{atack}\nDefesa: {atributo.defesa +
+                                                                                                skill.defesa}')
+                if Espada.nome not in 'vazio' and idlocal == Espada.id:
+                    print(f'Rec: {Espada.rec}')
+
+                if pet.nome not in 'vazio' and idlocal == pet.id:
+                    print(f'Pet: {pet.nome} ({pet.vida}/{pet.hp}HP) ({pet.dano} Dano)')
+                    sleep(1)
+
+                if magia.nome not in 'vazio' and idlocal == magia.id:
+                    print(f'Magia: ({magia.dano - 10}-{magia.dano} Dano) ({magia.mana} Mana)')
+                    sleep(1)
+
+
+                print(Linha())
+                sleep(1)
+                tecla = Opcoes(['Atacar', 'Recuar'], 1)
+                if tecla == 0:
+                    if mob.nome in 'Boss':
+                        atacar = 1
+
+                    else:
+                        atacar = Tecla('Looping de quantas vezes (Máximo 10 vezes): ', 0, 10)
+                        if Interru().interrupitor == 2:
+                            break
+
+
+                    sleep(1)
+                    for v in range(1, atacar + 1):
+                        if v > 1:
+                            print('-=' * 10)
+                            print(f'Você encontrou outro(a) {mob.nome}')
+                            sleep(2)
+
+                        HPanimal, Danoanimal = infobatalha(local.nome, idlocal, idmob)
+                        batalha(local.nome, idlocal, idmob, HPanimal, Danoanimal, atack)
+                        mortemob(local, idlocal, idmob, moeda, exp)
+
+                        morte = Morte()
+                        if morte.mortejogador == 2:
+                            UpdateNome('Morte', 'MorteJogador', 1, jogador.nome)
+                            break
+
+                elif tecla == 1:
+                    break
+
+                if Interru().interrupitor == 2:
+                    break
+
+        if Interru().interrupitor == 2:
+            break
+
+
+def infobatalha(local, idlocal, idmob):
+    mob = Mobs(local, idmob)
     jogador = Jogador()
     atributo = Atributos()
     skill = Skill()
-    fragmentos = Fragmentos(tecla1)
+    fragmentos = Fragmentos(idlocal)
 
-    diferencaelementar = mobs.danoelementar - fragmentos.qtde
+    diferencaelementar = mob.danoelementar - fragmentos.qtde
     if diferencaelementar < 0:
         diferencaelementar = 0
-    diferencalv = mobs.lv - jogador.lv
+    diferencalv = mob.lv - jogador.lv
 
     defesa = atributo.defesa + skill.defesa
-    HPanimal = mobs.hp
-    Danoanimal = mobs.dano + diferencaelementar - defesa
-    if jogador.lv >= mobs.lv or diferencalv <= 0:
-        if mobs.nome in 'Boss':
-            Danoanimal = mobs.dano + diferencaelementar - defesa - (jogador.lv - 1)
+    HPanimal = mob.hp
+    Danoanimal = mob.dano + diferencaelementar - defesa
+    if jogador.lv >= mob.lv or diferencalv <= 0:
+        if mob.nome in 'Boss':
+            Danoanimal = mob.dano + diferencaelementar - defesa - (jogador.lv - 1)
         pass
     else:
-        HPanimal = mobs.hp + diferencalv
-        Danoanimal = mobs.dano + diferencalv + diferencaelementar - defesa
+        HPanimal = mob.hp + diferencalv
+        Danoanimal = mob.dano + diferencalv + diferencaelementar - defesa
 
     if Danoanimal < 0:
         Danoanimal = 0
@@ -1166,164 +1159,260 @@ def infobatalha(locais, tecla1, tecla2):
     return HPanimal, Danoanimal
 
 
-def batalha(locais, tecla1, tecla2, HPanimal, Danoanimal, atack):
-    mobs = Mobs(locais, tecla2)
-    Espada = ArmaJogador()
+def coletaitens(idmob):
+    lista = []
+    f = ''
+    for pos in range(0, 4):
+        if idmob == 9:
+            ferramenta = VaraPesca(pos)
+            f = 'vara de pesca'
+
+        elif idmob == 8:
+            ferramenta = Picaretas(pos)
+            f = 'picareta'
+
+        else:
+            ferramenta = Machados(pos)
+            f = 'machado'
+
+        if ferramenta.qtde > 0:
+            if pos == 0:
+                print(f'Usar qual {f}:')
+
+            print(f'[{pos}] {ferramenta.nome} ({ferramenta.eficiencia} segundos)')
+            lista.append(pos)
+        if pos == 1 and idmob == 9:
+            break
+
+    if not lista:
+        print(f'Você não tem {f}')
+        sleep(2)
+
+    else:
+        print(f'[{lista[-1] + 1}] Voltar')
+        tecla = Tecla('Tecla: ', lista[-1] + 1, lista[-1] + 1)
+        if Interru().interrupitor == 2:
+            pass
+
+        elif tecla == lista[-1] + 1:
+            pass
+        else:
+            if idmob == 9:
+                ferramenta = VaraPesca(tecla)
+                i = 'Pescando...'
+                iditem = 2
+
+            elif idmob == 8:
+                ferramenta = Picaretas(tecla)
+                i = 'Minerando Pedras...'
+                iditem = 1
+
+            else:
+                ferramenta = Machados(tecla)
+                i = 'Cortando Madeiras...'
+                iditem = 0
+
+            while True:
+                print(i)
+                for t in range(ferramenta.eficiencia, -1, -1):
+                    print(f'\r{t}', end='')
+                    sleep(1)
+                    if Interru().interrupitor == 2:
+                        break
+
+                print()
+                item = Itens(iditem)
+                UpdateNome('Itens', 'Qtde', item.qtde + 2, item.nome)
+                print('Você coletou 1 item')
+                sleep(1)
+
+
+def batalha(local, idlocal, idmob, HPanimal, Danoanimal, atack):
     Vidaanimal = HPanimal
     while True:
-        jogador = Jogador()
-        # Jogador ataca Mob
-        jogadoratack = randint(atack - 4, atack)
-        print('-=' * 10)
-        print(f'{jogador.nome}: \033[31m{jogadoratack}\033[m de atack')
-        HPanimal -= jogadoratack
-        sleep(1)
-
-        if Espada.nome not in 'vazio':
-            if jogador.vida + Espada.rec <= jogador.hp:
-                vidajogador = jogador.vida + Espada.rec
-                UpdateNome('Jogador', 'Vida', vidajogador, jogador.nome)
-                print(f'{jogador.nome} recuperou +{Espada.rec} de vida: {vidajogador}/{jogador.hp}')
-            sleep(1)
-
-        if HPanimal <= 0:
-            print('-=' * 10)
-            print(f'{jogador.nome} matou um(a): {mobs.nome}')
-            sleep(2)
-            mortemob(locais, tecla1, tecla2)
-            break
-        print(f'{mobs.nome}: {HPanimal}/{Vidaanimal}HP')
-        # Jogador usa Mana
-        PotManaJg = PocaoJogadorMana()
-        PotMana = PocoesMana(PotManaJg.id)
-        if PotMana.qtde > 0 and jogador.mana <= PotManaJg.uso:
-            print(f'{jogador.nome} usou uma {PotManaJg.nome} (+{PotMana.rec} Mana)')
-            sleep(2)
-            jogador = Jogador()
-            if PotManaJg.uso + jogador.mana >= jogador.qtdemana:
-                UpdateNome('Jogador', 'Mana', jogador.qtdemana, jogador.nome)
-            else:
-                UpdateNome('Jogador', 'Mana', jogador.mana + PotMana.rec, jogador.nome)
-            UpdateNome('PocaoMana', 'Qtde', PotMana.qtde, PotMana.nome)
-            jogador = Jogador()
-            print(f'{jogador.nome}: {jogador.mana}/{jogador.qtdemana} Mana')
-            PotMana = PocoesMana(PotManaJg.id)
-            print(f'Quantidade de {PotManaJg.nome}: {PotMana.qtde}')
-            sleep(2)
-
-        # Jogador usa Magia
-        magia = MagiaJogador()
-        if magia.tempo == 1 and magia.nome not in 'vazio':
-            if magia.id == tecla1:
-                chancemagia = randint(magia.dano - 10, magia.dano)
-                customana = magia.mana
-            else:
-                chancemagia = customana = 0
-
-            if jogador.mana >= customana:
-                print(f'{jogador.nome}: \033[31m{chancemagia}\033[m de atack (magia)')
-                sleep(2)
-                HPanimal -= chancemagia
-                Update('Jogador', 'Mana', jogador.mana - customana, jogador.mana)
-                UpdateNome('MagiaJogador', 'Tempo', magia.tempo + 1, magia.nome)
+        ordem = [0, 1, 2, 3]
+        shuffle(ordem)
+        for o in ordem:
+            if o == 0:
                 jogador = Jogador()
-                print(f'{jogador.nome}: {jogador.mana}/{jogador.qtdemana} Mana')
-                sleep(3)
+                mob = Mobs(local, idmob)
+                Espada = ArmaJogador()
+
+                jogadoratack = randint(atack - 4, atack)
+                print('-=' * 10)
+                print(f'{jogador.nome}: \033[31m{jogadoratack}\033[m de atack')
+                HPanimal -= jogadoratack
+                sleep(1)
+
+                if Espada.nome not in 'vazio':
+                    if jogador.hp == jogador.vida:
+                        pass
+
+                    elif jogador.vida + Espada.rec <= jogador.hp:
+                        vidajogador = jogador.vida + Espada.rec
+                        UpdateNome('Jogador', 'Vida', vidajogador, jogador.nome)
+                        print(f'{jogador.nome} recuperou +{Espada.rec} de vida: {vidajogador}/{jogador.hp}')
+                    else:
+                        vidajogador = jogador.hp - jogador.vida
+                        UpdateNome('Jogador', 'Vida', jogador.hp, jogador.nome)
+                        jogador = Jogador()
+                        print(f'{jogador.nome} recuperou +{vidajogador} de vida: {jogador.vida}/{jogador.hp}')
+                    sleep(1)
 
                 if HPanimal <= 0:
                     print('-=' * 10)
-                    print(f'{jogador.nome} matou um(a): {mobs.nome}')
-                    sleep(2)
-                    mortemob(locais, tecla1, tecla2)
+                    mapas = Mapas(idlocal)
+                    kill = Mobs(mapas.nome, idmob)
+                    print(f'{jogador.nome} matou {kill.morte + 1}: {mob.nome}')
+                    sleep(1)
                     break
 
-                print(f'{mobs.nome}: {HPanimal}/{Vidaanimal}HP')
+                print(f'{mob.nome}: {HPanimal}/{Vidaanimal}HP')
 
-        elif magia.nome in '':
-            pass
-        else:
-            if magia.tempo == 2:
-                UpdateNome('MagiaJogador', 'Tempo', magia.tempo + 1, magia.nome)
-            else:
-                UpdateNome('MagiaJogador', 'Tempo', 1, magia.nome)
+                PotManaJg = PocaoJogadorMana()
+                PotMana = PocoesMana(PotManaJg.id)
+                if PotMana.qtde > 0 and jogador.mana <= PotManaJg.uso:
+                    print(f'{jogador.nome} usou uma {PotManaJg.nome} (+{PotMana.rec} Mana)')
+                    sleep(2)
+                    jogador = Jogador()
+                    if PotMana.rec + jogador.mana >= jogador.qtdemana:
+                        UpdateNome('Jogador', 'Mana', jogador.qtdemana, jogador.nome)
+                    else:
+                        UpdateNome('Jogador', 'Mana', jogador.mana + PotMana.rec, jogador.nome)
+                    UpdateNome('PocaoMana', 'Qtde', PotMana.qtde, PotMana.nome)
+                    jogador = Jogador()
+                    print(f'{jogador.nome}: {jogador.mana}/{jogador.qtdemana} Mana')
+                    PotMana = PocoesMana(PotManaJg.id)
+                    print(f'Quantidade de {PotManaJg.nome}: {PotMana.qtde}')
+                    sleep(2)
 
-        print('-=' * 10)
-        sleep(5)
+                magia = MagiaJogador()
+                if magia.tempo == 1 and magia.nome not in 'vazio':
+                    if magia.id == idlocal:
+                        chancemagia = randint(magia.dano - 10, magia.dano)
+                        customana = magia.mana
+                    else:
+                        chancemagia = customana = 0
 
-        # Mob atack Jogador
-        jogador = Jogador()
-        vidajogador = jogador.vida - Danoanimal
-        Update('Jogador', 'Vida', vidajogador, jogador.vida)
-        print('{}: \033[32m{}\033[m de atack'.format(mobs.nome, Danoanimal))
-        sleep(1)
-        morte = Morte()
-        if vidajogador <= 0:
-            print('-=' * 10)
-            print(f'{mobs.nome} matou {jogador.nome}')
-            sleep(5)
-            mortejogador()
-            break
-        print(f'{jogador.nome}: {vidajogador}/{jogador.hp} HP')
-        sleep(1)
+                    if jogador.mana >= customana:
+                        print(f'{jogador.nome}: \033[31m{chancemagia}\033[m de atack (magia)')
+                        sleep(2)
+                        HPanimal -= chancemagia
+                        Update('Jogador', 'Mana', jogador.mana - customana, jogador.mana)
+                        UpdateNome('MagiaJogador', 'Tempo', magia.tempo + 1, magia.nome)
+                        jogador = Jogador()
+                        print(f'{jogador.nome}: {jogador.mana}/{jogador.qtdemana} Mana')
+                        sleep(3)
 
-        # Jogador usa Pot
-        PotHPjg = PocaoJogadorHP()
-        PotHP = PocoesHP(PotHPjg.id)
-        jogador = Jogador()
-        if PotHP.qtde > 0 and vidajogador <= PotHPjg.uso:
-            if jogador.vida + PotHP.rec >= jogador.hp:
-                UpdateNome('Jogador', 'Vida', jogador.hp, jogador.nome)
+                        if HPanimal <= 0:
+                            print('-=' * 10)
+                            mapas = Mapas(idlocal)
+                            kill = Mobs(mapas.nome, idmob)
+                            print(f'{jogador.nome} matou {kill.morte + 1}: {mob.nome}')
+                            sleep(2)
+                            break
+                        print(f'{mob.nome}: {HPanimal}/{Vidaanimal}HP')
 
-            else:
-                UpdateNome('Jogador', 'Vida', jogador.vida + PotHP.rec, jogador.nome)
+                elif magia.nome in '':
+                    pass
+                else:
+                    if magia.tempo == 2:
+                        UpdateNome('MagiaJogador', 'Tempo', magia.tempo + 1, magia.nome)
+                    else:
+                        UpdateNome('MagiaJogador', 'Tempo', 1, magia.nome)
 
-            UpdateNome('Bolsa', 'Qtde', PotHP.qtde, PotHP.nome)
-            print(f'{jogador.nome} usou uma {PotHPjg.nome} (+{PotHP.rec} Vida)')
-            sleep(4)
-            jogador = Jogador()
-            print(f'{jogador.nome}: {jogador.vida}/{jogador.hp} HP')
-            PotHP = PocoesHP(PotHPjg.id)
-            print(f'Quantidade de {PotHPjg.nome}: {PotHP.qtde}')
-            sleep(2)
-
-        print('-=' * 10)
-        sleep(5)
-
-        # Pet atack Mob
-        pets = PetJogador()
-        if pets.nome in 'vazio' or morte.mortepet == 2:
-            pass
-        else:
-            if pets.id == tecla1:
-                Danopet = pets.dano
-            else:
-                Danopet = 0
-            HPanimal -= Danopet
-            print(f'Pet ({pets.nome}): \033[32m{Danopet}\033[m de atack')
-            sleep(1)
-            if HPanimal <= 0:
+            elif o == 1:
+                mob = Mobs(local, idmob)
+                jogador = Jogador()
                 print('-=' * 10)
-                print(f'{pets.nome} matou um(a): {mobs.nome}')
-                sleep(2)
-                mortemob(locais, tecla1, tecla2)
-                break
-            print(f'{mobs.nome}: {HPanimal}/{Vidaanimal}HP')
-            print('-=' * 10)
-            sleep(5)
+                vidajogador = jogador.vida - Danoanimal
+                Update('Jogador', 'Vida', vidajogador, jogador.vida)
+                print('{}: \033[32m{}\033[m de atack'.format(mob.nome, Danoanimal))
+                sleep(1)
+                if vidajogador <= 0:
+                    print('-=' * 10)
+                    print(f'{mob.nome} matou {jogador.nome}')
+                    sleep(5)
+                    mortejogador()
+                    break
+                print(f'{jogador.nome}: {vidajogador}/{jogador.hp} HP')
+                sleep(1)
 
-            # Mob atack Pet
-            vidapet = pets.vida - Danoanimal
-            Update('PetsJogador', 'Vida', vidapet, pets.vida)
-            print(f'{mobs.nome}: \033[32m{Danoanimal}\033[m de atack')
-            sleep(1)
-            if vidapet <= 0:
-                print(f'{mobs.nome} matou Pet ({pets.nome})')
-                Update('Morte', 'MortePet', 2, morte.mortepet)
-                UpdateNome('PetsJogador', 'Vida', pets.hp, pets.nome)
+                PotHPjg = PocaoJogadorHP()
+                PotHP = PocoesHP(PotHPjg.id)
+                jogador = Jogador()
+                if PotHP.qtde > 0 and vidajogador <= PotHPjg.uso:
+                    if jogador.vida + PotHP.rec >= jogador.hp:
+                        UpdateNome('Jogador', 'Vida', jogador.hp, jogador.nome)
 
-            else:
-                print(f'Pet ({pets.nome}): {vidapet}/{pets.hp}')
-            sleep(5)
+                    else:
+                        UpdateNome('Jogador', 'Vida', jogador.vida + PotHP.rec, jogador.nome)
+
+                    UpdateNome('Bolsa', 'Qtde', PotHP.qtde, PotHP.nome)
+                    print(f'{jogador.nome} usou uma {PotHPjg.nome} (+{PotHP.rec} Vida)')
+                    sleep(4)
+                    jogador = Jogador()
+                    print(f'{jogador.nome}: {jogador.vida}/{jogador.hp} HP')
+                    PotHP = PocoesHP(PotHPjg.id)
+                    print(f'Quantidade de {PotHPjg.nome}: {PotHP.qtde}')
+                    sleep(2)
+                sleep(5)
+
+            elif o == 2:
+                morte = Morte()
+                mob = Mobs(local, idmob)
+                pets = PetJogador()
+
+                if pets.nome in 'vazio' or morte.mortepet == 2:
+                    pass
+                else:
+                    if pets.id == idlocal:
+                        Danopet = pets.dano
+                    else:
+                        Danopet = 0
+
+                    print('-=' * 10)
+                    HPanimal -= Danopet
+                    print(f'Pet ({pets.nome}): \033[32m{Danopet}\033[m de atack')
+                    sleep(1)
+                    if HPanimal <= 0:
+                        print('-=' * 10)
+                        mapas = Mapas(idlocal)
+                        kill = Mobs(mapas.nome, idmob)
+                        print(f'{pets.nome} matou {kill.morte + 1}: {mob.nome}')
+                        sleep(2)
+                        break
+                    print(f'{mob.nome}: {HPanimal}/{Vidaanimal}HP')
+                    sleep(5)
+
+            elif o == 3:
+                pets = PetJogador()
+                morte = Morte()
+                mob = Mobs(local, idmob)
+
+                if pets.nome in 'vazio' or morte.mortepet == 2:
+                    pass
+                else:
+                    print('-=' * 10)
+                    vidapet = pets.vida - Danoanimal
+                    Update('PetsJogador', 'Vida', vidapet, pets.vida)
+                    print(f'{mob.nome}: \033[32m{Danoanimal}\033[m de atack')
+                    sleep(1)
+                    if vidapet <= 0:
+                        print(f'{mob.nome} matou Pet ({pets.nome})')
+                        Update('Morte', 'MortePet', 2, morte.mortepet)
+                        UpdateNome('PetsJogador', 'Vida', pets.hp, pets.nome)
+
+                    else:
+                        print(f'Pet ({pets.nome}): {vidapet}/{pets.hp}')
+                    sleep(5)
+
+        jogador = Jogador()
+        if HPanimal <= 0:
+            break
+
+        elif jogador.vida <= 0:
+            break
 
 
 def mortejogador():
@@ -1346,51 +1435,64 @@ def mortejogador():
     Update('Jogador', 'Vida', jogador.hp, jogador.vida)
 
 
-def mortemob(locais, tecla1, tecla2):
+def mortemob(local, idlocal, idmob, moeda, exp):
     jogador = Jogador()
-    mobs = Mobs(locais, tecla2)
+    mob = Mobs(local, idmob)
 
-    UpdateNome(locais, 'Morte', mobs.morte + 2, mobs.nome)
-    UpdateNome('Jogador', 'Dinheiro', jogador.dinheiro + mobs.dinheiro + 1, jogador.nome)
-    UpdateNome('Jogador', 'QtdeExp', jogador.qtdeexp + mobs.exp + 1, jogador.nome)
+    UpdateNome(local, 'Morte', mob.morte + 2, mob.nome)
+    UpdateNome('Jogador', 'Dinheiro', jogador.dinheiro + moeda + 1, jogador.nome)
+    UpdateNome('Jogador', 'QtdeExp', jogador.qtdeexp + mob.exp + 1, jogador.nome)
     jogador = Jogador()
-    print(f'{jogador.nome} ganhou {mobs.dinheiro} moedas')
+    print(f'{jogador.nome} ganhou {mob.dinheiro} moedas')
     print(f'{jogador.nome} tem {jogador.dinheiro} moedas')
     sleep(5)
-    print(f'{jogador.nome} ganhou {mobs.exp} experiências')
+    print(f'{jogador.nome} ganhou {exp} experiências')
     print(f'{jogador.nome} tem {jogador.qtdeexp}/{jogador.exp} experiência')
     sleep(5)
 
     # Drop Fragmentos
-    if mobs.nome in 'Bear':
+    if mob.nome in 'Bear':
         chancecouro = randint(1, 100)
         if chancecouro <= 25:
-            couros = Itens(ind='3')
+            couros = Itens(ind=3)
             UpdateNome('Itens', 'Qtde', couros.qtde + 2, couros.nome)
             print(f'{jogador.nome} ganhou 1 couro')
             sleep(3)
     chancedrop = randint(1, 100)
     if chancedrop <= 5:
-        fragmentos = Fragmentos(tecla1)
+        fragmentos = Fragmentos(idlocal)
         print(f'{jogador.nome} ganhou 1 {fragmentos.nomec}')
         UpdateNome('Fragmentos', 'Qtde', fragmentos.qtde + 2, fragmentos.nome)
         sleep(3)
-    print('-=' * 10)
-    LevelAnimal(locais, tecla2)
+
+    LevelAnimal(local, idmob)
     LvJogador()
     pets = PetJogador()
     if pets.nome in 'vazio':
         pass
     else:
-        LvPet(locais, tecla2)
+        LvPet(local, idmob)
+
+
+def Mortesmobs():
+    for num in range(0, 7):
+        mapas = Mapas(num)
+        for pos in range(0, mapas.qtdemob):
+            kill = Mobs(mapas.nome, pos)
+            if kill.nome in ['Peixes', 'Pedras', 'Madeiras']:
+                pass
+            else:
+                if kill.morte > 0:
+                    print(f'{kill.nome} = {kill.morte}')
 
 
 def LvJogador():
     while True:
         jogador = Jogador()
         if jogador.qtdeexp >= jogador.exp:
+            print('-=' * 10)
             Update('Jogador', 'Level', jogador.lv + 1, jogador.lv)
-            UpdateNome('Jogador', 'EXP', jogador.exp * 2, jogador.nome)
+            UpdateNome('Jogador', 'EXP', jogador.exp * 1.5, jogador.nome)
             Update('Jogador', 'HP', jogador.hp + 10, jogador.hp)
             Update('Jogador', 'QtdeMana', jogador.mana + 10, jogador.qtdemana)
             jogador = Jogador()
@@ -1407,31 +1509,30 @@ def LvJogador():
             break
 
 
-def LevelAnimal(locais, tecla2):
-    mobs = Mobs(locais, tecla2)
-    if mobs.morte % 50 == 0:
-        LvAnimal = mobs.morte / 50
-        LvAnimal += mobs.lv
+def LevelAnimal(local, idmob):
+    mob = Mobs(local, idmob)
+    if mob.morte % 50 == 0:
+        LvAnimal = mob.lv + 1
     else:
         LvAnimal = 0
     while True:
-        if LvAnimal > mobs.lv:
-            if LvAnimal > mobs.lv + 10:
+        if LvAnimal > mob.lv:
+            if LvAnimal > mob.lv + 10:
                 pass
             else:
-                UpdateNome(locais, 'level', LvAnimal, mobs.nome)
-                UpdateNome(locais, 'HP', mobs.hp + 1, mobs.nome)
-                UpdateNome(locais, 'Dano', mobs.dano + 1, mobs.nome)
-                UpdateNome(locais, 'Exp', mobs.exp + 1, mobs.nome)
-                UpdateNome(locais, 'Dinheiro', mobs.dinheiro + 1, mobs.nome)
+                UpdateNome(local, 'level', LvAnimal, mob.nome)
+                UpdateNome(local, 'HP', mob.hp + 1, mob.nome)
+                UpdateNome(local, 'Dano', mob.dano + 1, mob.nome)
+                UpdateNome(local, 'Exp', mob.exp + 1, mob.nome)
+                UpdateNome(local, 'Dinheiro', mob.dinheiro + 1, mob.nome)
         break
 
 
-def LvPet(locais, tecla2):
+def LvPet(local, idmob):
     petjogador = PetJogador()
     pet = Pet(petjogador.id)
-    mobs = Mobs(locais, tecla2)
-    UpdateNome('Pets', 'Exp', pet.exp + mobs.exp + 1, pet.nome)
+    mob = Mobs(local, idmob)
+    UpdateNome('Pets', 'Exp', pet.exp + mob.exp + 1, pet.nome)
     while True:
         if pet.exp >= pet.qtdeExp:
             UpdateNome('Pets', 'Level', pet.lv + 1, pet.nome)
@@ -1439,7 +1540,7 @@ def LvPet(locais, tecla2):
         else:
             break
     pet = Pet(petjogador.id)
-    print(f'Pet ganhou {mobs.exp} exp')
+    print(f'Pet ganhou {mob.exp} exp')
     print(f'Pet tem {pet.exp}/{pet.qtdeExp} exp')
     sleep(2)
 
@@ -1447,66 +1548,54 @@ def LvPet(locais, tecla2):
 def atributos():
     while True:
         atributo = Atributos()
-        print('[0] Mostrar Atributos')
-        print('[1] Melhorar Atributos')
-        print('[C] Voltar')
-        while True:
-            tecla = str(input('Tecla: ')).strip().upper()
-            if tecla in '01C':
-                break
-            else:
-                print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-        if tecla in 'C':
+        tecla = Opcoes(['Mostrar Atributos', 'Melhorar Atributos', 'Voltar'], 2)
+        if tecla == 2:
             break
 
-        elif tecla in '0':
+        elif tecla == 0:
+            print(Linha())
             print(f'Atack: {atributo.atack}')
             print(f'Defesa: {atributo.defesa}')
+            print(Linha())
+            sleep(2)
 
-        elif tecla in '1':
+        elif tecla == 1:
+            print(Linha())
             jogador = Jogador()
             print(f'Quantidade de pontos: {jogador.pontos}')
-            print(f'[0] Atack = 1 ponto')
-            print(f'[1] Defesa = 1 ponto')
-            print(f'[C] Voltar')
-            while True:
-                tecla1 = str(input('Tecla: ')).strip().upper()
-                if tecla1 in '01C':
-                    break
-                else:
-                    print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-            if tecla1 in 'C':
+            tecla1 = Opcoes(['Atacar = 1 ponto', 'Defesa = 1 ponto', 'Voltar'], 2)
+            if tecla1 == 2:
                 pass
+
             elif jogador.pontos >= 1:
                 UpdateNome('Jogador', 'Pontos', jogador.pontos, jogador.nome)
 
                 # atack
-                if tecla1 in '0':
+                if tecla1 == 0:
                     Update('Atributos', 'Atack', atributo.atack + 1, atributo.atack + 1)
 
                 # defesa
-                elif tecla1 in '1':
+                elif tecla1 == 1:
                     Update('Atributos', 'Defese', atributo.defesa + 1, atributo.defesa + 1)
+
             else:
                 print('\033[33mErro: \033[mPontos insuficiente.')
+
+            if Interru().interrupitor in '2':
+                break
+
+        if Interru().interrupitor in '2':
+            break
 
 
 def habilidades():
     while True:
         skill = Skill()
-        print('[0] Mostrar Habilidades')
-        print('[1] Treinar Habilidades')
-        print('[C] Voltar')
-        while True:
-            tecla = str(input('Tecla: ')).strip().upper()
-            if tecla in '01C':
-                break
-            else:
-                print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-        if tecla in 'C':
+        tecla = Opcoes(['Mostrar Habilidades', 'Treinar Habilidades', 'Voltar'], 2)
+        if tecla == 2:
             break
 
-        elif tecla in '0':
+        elif tecla == 0:
             morte = Morte()
             print(f'Atacak: {skill.atack}')
             print(f'Defesa: {skill.defesa}')
@@ -1515,231 +1604,106 @@ def habilidades():
             print(f'Tempo Perdido de Defesa: {morte.tdefese - 1} segundos')
             sleep(2)
 
-        elif tecla in '1':
-            print('Treinar:')
-            print(f'[0] Atack = {skill.tempoatack} segundos')
-            print(f'[1] Defesa = {skill.tempodefesa} segundos')
-            print('[C] Voltar')
+        elif tecla == 1:
             while True:
-                tecla1 = str(input('Tecla: ')).strip().upper()
-                if tecla1 in '01C':
+                print('Treinar:')
+                tecla1 = Opcoes([f'Atack = {skill.tempoatack}', f'Defesa = {skill.tempodefesa}', 'Voltar'], 2)
+                if tecla1 == 2:
                     break
-                else:
-                    print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-            if tecla1 in 'C':
-                pass
 
-            elif tecla1 in '0':
-                print('Treinando Atack...')
-                skill = Skill()
-                for i in range(skill.tempoatack, -1, -1):
+                elif tecla1 == 0:
+                    print('Treinando Atack...')
                     skill = Skill()
-                    print(f'\r{skill.tempoatack}', end='')
-                    Update('Habilidades', 'TempoAtack', skill.tempoatack - 1, skill.tempoatack)
-                    sleep(1)
-                Update('Habilidades', 'Atack', skill.atack + 1, skill.atack)
-                skill = Skill()
-                Update('Habilidades', 'TempoAtack', skill.atack * 60, skill.atack)
-                print('\nVocê upou sua habilidade de atack')
+                    for i in range(skill.tempoatack, -1, -1):
+                        skill = Skill()
+                        print(f'\r{skill.tempoatack}', end='')
+                        Update('Habilidades', 'TempoAtack', skill.tempoatack - 1, skill.tempoatack)
+                        sleep(1)
 
-            elif tecla1 in '1':
-                print('Treinando Defesa...')
-                skill = Skill()
-                for i in range(skill.tempodefesa, -1, -1):
+                    if Interru().interrupitor == 2:
+                        break
+                    else:
+                        Update('Habilidades', 'Atack', skill.atack + 1, skill.atack)
+                        skill = Skill()
+                        Update('Habilidades', 'TempoAtack', skill.atack * 60, skill.atack)
+                        print('\nVocê upou sua habilidade de atack')
+
+                elif tecla1 == 1:
+                    print('Treinando Defesa...')
                     skill = Skill()
-                    print(f'\r{skill.tempodefesa}', end='')
-                    Update('Habilidades', 'TempoDefese', skill.tempodefesa - 1, skill.tempodefesa)
-                    sleep(1)
-                Update('Habilidades', 'Defese', skill.defesa + 1, skill.defesa)
-                skill = Skill()
-                Update('Habilidades', 'TempoDefese', skill.defesa * 60, skill.defesa)
-                print('\nVocê upou sua habilidade de defese')
-
-
-def coletaitens(locais, tecla2):
-    mobs = Mobs(locais, tecla2)
-    if mobs.nome in 'Madeira':
-        lista = []
-        print("Usar qual Machado:")
-        for pos in range(0, 4):
-            machados = Machados(pos)
-            if machados.qtde > 0:
-                print(f'[{pos}] {machados.nome} ({machados.eficiencia} segundos)')
-                lista.append(str(pos))
-        if not lista:
-            print('Você não tem um machado')
-            sleep(2)
-        else:
-            print('[C] Voltar')
-            while True:
-                tecla3 = str(input('Tecla: ')).strip().upper()
-                if tecla3 in lista or tecla3 in 'C':
-                    break
-                else:
-                    print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-
-            if tecla3 in 'C':
-                pass
-
-            else:
-                machados = Machados(int(tecla3))
-                while True:
-                    print('Cortando Madeiras...')
-                    for t in range(machados.eficiencia, -1, -1):
-                        print(f'\r{t}', end='')
+                    for i in range(skill.tempodefesa, -1, -1):
+                        skill = Skill()
+                        print(f'\r{skill.tempodefesa}', end='')
+                        Update('Habilidades', 'TempoDefese', skill.tempodefesa - 1, skill.tempodefesa)
                         sleep(1)
-                    print()
-                    madeiras = Itens(ind='0')
-                    UpdateNome('Itens', 'Qtde', madeiras.qtde + 2, madeiras.nome)
-                    print('Você coletou 1 madeira')
-                    sleep(1)
 
-    elif mobs.nome in 'Pedras':
-        lista = []
-        print("Usar qual Picareta:")
-        for pos in range(0, 4):
-            picaretas = Picaretas(pos)
-            if picaretas.qtde > 0:
-                print(f'[{pos}] {picaretas.nome} ({picaretas.eficiencia} segundos)')
-                lista.append(str(pos))
+                    if Interru().interrupitor == 2:
+                        break
+                    else:
+                        Update('Habilidades', 'Defese', skill.defesa + 1, skill.defesa)
+                        skill = Skill()
+                        Update('Habilidades', 'TempoDefese', skill.defesa * 60, skill.defesa)
+                        print('\nVocê upou sua habilidade de defese')
 
-        if not lista:
-            print('Você não tem uma picareta')
-            sleep(2)
-        else:
-            print('[C] Voltar')
-            while True:
-                tecla3 = str(input('Tecla: ')).strip().upper()
-                if tecla3 in lista or tecla3 in 'C':
+                if Interru().interrupitor == 2:
                     break
-                else:
-                    print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-            if tecla3 in 'C':
-                pass
-            else:
-                picaretas = Picaretas(int(tecla3))
-                while True:
-                    print('Minerando Pedras...')
-                    for t in range(picaretas.eficiencia, -1, -1):
-                        print(f'\r{t}', end='')
-                        sleep(1)
-                    print()
-                    pedras = Itens(ind='1')
-                    UpdateNome('Itens', 'Qtde', pedras.qtde + 2, pedras.nome)
-                    print('Você coletou 1 pedra')
-                    sleep(1)
 
-    elif mobs.nome in 'Peixes':
-        lista = []
-        print("Usar qual Vara de Pesca:")
-        for pos in range(0, 2):
-            varapesca = VaraPesca(pos)
-            if varapesca.qtde > 0:
-                print(f'[{pos}] {varapesca.nome} ({varapesca.eficiencia} segundos)')
-                lista.append(str(pos))
-
-        if not lista:
-            print('Você não tem uma Vara de Pesca')
-            sleep(2)
-        else:
-            print('[C] Voltar')
-            while True:
-                tecla3 = str(input('Tecla: ')).strip().upper()
-                if tecla3 in lista or tecla3 in 'C':
-                    break
-                else:
-                    print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-
-            if tecla3 in 'C':
-                pass
-
-            else:
-                varapesca = VaraPesca(int(tecla3))
-                while True:
-                    print('Pescando...')
-                    for p in range(varapesca.eficiencia, -1, -1):
-                        print(f'\r{p}', end='')
-                        sleep(1)
-                    print()
-                    peixes = Itens(ind='2')
-                    UpdateNome('Itens', 'Qtde', peixes.qtde + 2, peixes.nome)
-                    print('Você coletou 1 peixe')
-                    sleep(1)
+        if Interru().interrupitor == 2:
+            break
 
 
 def lojapot(Tipo):
     while True:
         lojas = Lojas(Tipo)
-        linha('Loja de Poções')
-        print('[0] Comprar poções')
-        print('[1] Melhorar Loja de poções')
-        print('[C] Voltar')
-        while True:
-            tecla = str(input("Tecla: ")).strip().upper()
-            if tecla in '01C':
-                break
-            else:
-                print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-
-        if tecla in 'C':
+        Titulo('Loja de Poções')
+        sleep(1)
+        tecla = Opcoes(['Comprar Poções', 'Melhorar Loja de Poções', 'Voltar'], 2)
+        if tecla == 2:
             break
 
-        elif tecla in '0':
+        elif tecla == 1:
+            MelhorarLoja(Tipo)
+
+        elif tecla == 0:
             while True:
-                print('[0] Poções de Vida')
-                print('[1] Poções de Mana')
-                print('[C] Voltar')
-                while True:
-                    tecla1 = str(input('Tecla: ')).strip().upper()
-                    if tecla1 in '01C':
-                        break
-                    else:
-                        print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-                if tecla1 in 'C':
+                tecla1 = Opcoes(['Poções de Vida', 'Poções de Mana', 'Voltar'], 2)
+                if tecla1 == 2:
                     break
 
-                lvmaximo = lojas.lv
-                if lvmaximo > 7:
-                    lvmaximo = 7
-                for i in range(0, lvmaximo):
-                    if tecla1 in '0':
-                        Pot = PocoesHP(i)
-                        print(f'[{i}] {Pot.nome} (+{Pot.rec}HP) = {Pot.preco} moedas')
-                    elif tecla1 in '1':
-                        Pot = PocoesMana(i)
-                        print(f'[{i}] {Pot.nome} (+{Pot.rec}Mana) = {Pot.preco} moedas')
-
-                print('[C] Voltar')
-                tecla2 = 10
-                while True:
-                    strtecla = str(input('Tecla: ')).strip().upper()
-                    if strtecla.isnumeric():
-                        tecla2 = int(strtecla)
-                        if tecla2 < 0 or tecla2 >= lvmaximo:
-                            print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-                        else:
-                            break
-                    else:
-                        if strtecla in 'C':
-                            break
-                        print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-                if strtecla in 'C':
-                    pass
                 else:
-                    jogador = Jogador()
+                    lvmaximo = lojas.lv
+                    if lvmaximo > 7:
+                        lvmaximo = 7
                     while True:
-                        if tecla1 in '0':
-                            Pot = PocoesHP(tecla2)
-                            maximo = jogador.dinheiro / Pot.preco
-                        else:
-                            Pot = PocoesMana(tecla2)
-                            maximo = jogador.dinheiro / Pot.preco
+                        lista = []
+                        print(Linha())
+                        for i in range(0, lvmaximo):
+                            if tecla1 == 0:
+                                Pot = PocoesHP(i)
+                                print(f'[{i}] {Pot.nome} (+{Pot.rec}HP) = {Pot.preco} moedas')
+                            elif tecla1 == 1:
+                                Pot = PocoesMana(i)
+                                print(f'[{i}] {Pot.nome} (+{Pot.rec}Mana) = {Pot.preco} moedas')
+                            lista.append(i)
 
-                        print(f'Compra Máxima de {trunc(maximo)} poções')
-                        qtde = str(input(f'Quantidade de {Pot.nome}: '))
-                        if qtde.isnumeric():
-                            qtde = int(qtde)
-                            if tecla1 in '0':
+                        print(f'[{lista[-1] + 1}] Voltar')
+                        tecla2 = Tecla('Tecla: ', lista[-1] + 1, lista[-1] + 1)
+                        if tecla2 == lista[-1] + 1:
+                            break
+
+                        elif tecla2 in lista:
+                            jogador = Jogador()
+                            if tecla1 == 0:
+                                Pot = PocoesHP(tecla2)
+                                maximo = jogador.dinheiro / Pot.preco
+                            else:
+                                Pot = PocoesMana(tecla2)
+                                maximo = jogador.dinheiro / Pot.preco
+
+                            print(f'Compra Máxima de {trunc(maximo)} poções')
+                            qtde = Tecla(f'Quantidade de {Pot.nome}: ', 0, maximo)
+
+                            if tecla1 == 0:
                                 pot = PocoesHP(tecla2)
                                 custo = pot.preco * qtde
                                 fron = 'Bolsa'
@@ -1747,362 +1711,274 @@ def lojapot(Tipo):
                                 pot = PocoesMana(tecla2)
                                 custo = pot.preco * qtde
                                 fron = 'PocaoMana'
-                            if jogador.dinheiro >= custo or qtde == 0:
-                                break
-                            else:
-                                print('\033[33mErro: \033[mMoedas insuficiente.')
-                        else:
-                            print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-                    UpdateNome('Jogador', 'Dinheiro', jogador.dinheiro - custo + 1, jogador.nome)
-                    UpdateNome(fron, 'Qtde', pot.qtde + qtde + 1, pot.nome)
-                    print(f'Você comprou {qtde} {pot.nome} por {custo} moedas')
 
-        if tecla in '1':
-            MelhorarLoja(Tipo)
+                            if jogador.dinheiro >= custo or qtde == 0:
+                                UpdateNome('Jogador', 'Dinheiro', jogador.dinheiro - custo + 1,
+                                           jogador.nome)
+                                UpdateNome(fron, 'Qtde', pot.qtde + qtde + 1, pot.nome)
+                                print(f'Você comprou {qtde} {pot.nome} por {custo} moedas')
+                                sleep(2)
+
+                            if Interru().interrupitor == 2:
+                                break
+
+                        if Interru().interrupitor == 2:
+                            break
+
+                if Interru().interrupitor == 2:
+                    break
+
+        if Interru().interrupitor == 2:
+            break
 
 
 def lojaferramentas(tecla2):
+    lojas = Lojas(tecla2)
+    jogador = Jogador()
     while True:
-        lojas = Lojas(tecla2)
-        jogador = Jogador()
-        linha('Loja de Ferramentas')
-        print('[0] Comprar Picareta')
-        print('[1] Comprar Machado')
-        print('[2] Comprar Vara de Pesca')
-        print('[3] Melhorar Loja de ferramentas')
-        print('[C] Voltar')
-        while True:
-            tecla = str(input("Tecla: ")).strip().upper()
-            if tecla in '0123C':
-                break
-            else:
-                print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-        tecla1 = 0
-        if tecla in 'C':
+        Titulo('Loja de Ferramentas')
+        tecla = Opcoes(['Comprar Picareta', 'Comprar Machado', 'Compra Vara de Pesca', 'Melhorar Loja de Ferramenta',
+                        'Voltar'], 4)
+
+        if tecla == 4:
             break
-        elif tecla in '0':
-            lvferramentas = lojas.lv
-            if lojas.lv >= 4:
-                lvferramentas = 4
 
-            for i in range(0, lvferramentas):
-                picaretas = Picaretas(i)
-                print(f'[{i}] {picaretas.nome} ({picaretas.eficiencia} segundos) = {picaretas.preco} diamantes')
-            print('[C] Voltar')
-            while True:
-                strtecla = str(input('Tecla: ')).strip().upper()
-                if strtecla.isnumeric():
-                    tecla1 = int(strtecla)
-                    if tecla1 < 0 or tecla1 >= lvferramentas:
-                        print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-                    else:
-                        picareta = Picaretas(tecla1)
-                        if picareta.qtde == 0:
-                            break
-                        else:
-                            print('Você já tem essa Picareta')
-                else:
-                    if strtecla in 'C':
-                        break
-                    print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-            if strtecla in 'C':
-                pass
-            else:
-                picareta = Picaretas(tecla1)
-                if jogador.diamante >= picareta.preco:
-                    UpdateNome('Jogador', 'Diamante', jogador.diamante - picareta.preco + 1, jogador.nome)
-                    UpdateNome('Picaretas', 'Qtde', picareta.qtde + 2, picareta.nome)
-                    print(f'Você comprou 1 {picareta.nome} por {picareta.preco} diamantes')
-                    sleep(1)
-                else:
-                    print('\033[33mErro: \033[mDinheiro insuficiente.')
-
-        elif tecla in '1':
-            lvferramentas = lojas.lv
-            if lvferramentas >= 4:
-                lvferramentas = 4
-
-            for i in range(0, lvferramentas):
-                machados = Machados(i)
-                print(f'[{i}] {machados.nome} ({machados.eficiencia} segundos) = {machados.preco} diamantes')
-            print('[C] Voltar')
-            while True:
-                strtecla = str(input('Tecla: ')).strip().upper()
-                if strtecla.isnumeric():
-                    tecla1 = int(strtecla)
-                    if tecla1 < 0 or tecla1 >= lvferramentas:
-                        print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-                    else:
-                        machados = Machados(tecla1)
-                        if machados.qtde == 0:
-                            break
-                        else:
-                            print('Você já tem esse machado')
-                else:
-                    if strtecla in 'C':
-                        break
-                    print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-            if strtecla in 'C':
-                pass
-            else:
-                machados = Machados(tecla1)
-                if jogador.diamante >= machados.preco:
-                    UpdateNome('Jogador', 'Diamante', jogador.diamante - machados.preco + 1, jogador.nome)
-                    UpdateNome('Machados', 'Qtde', machados.qtde + 2, machados.nome)
-                    print(f'Você comprou 1 {machados.nome} por {machados.preco} diamantes')
-                    sleep(1)
-                else:
-                    print('\033[33mErro: \033[mDinheiro insuficiente.')
-
-        elif tecla in '2':
-            lvferramentas = lojas.lv
-            if lvferramentas >= 4:
-                lvferramentas = 2
-            else:
-                lvferramentas = 1
-
-            for i in range(0, lvferramentas):
-                varapesca = VaraPesca(i)
-                print(f'[{i}] {varapesca.nome} ({varapesca.eficiencia} segundos) = {varapesca.preco} diamantes')
-            print('[C] Voltar')
-            while True:
-                strtecla = str(input('Tecla: ')).strip().upper()
-                if strtecla.isnumeric():
-                    tecla1 = int(strtecla)
-                    if tecla1 < 0 or tecla1 >= lvferramentas:
-                        print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-                    else:
-                        varapesca = VaraPesca(tecla1)
-                        if varapesca.qtde == 0:
-                            break
-                        else:
-                            print('Você já tem essa vara de pesca')
-                else:
-                    if strtecla in 'C':
-                        break
-                    print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-            if strtecla in 'C':
-                pass
-            else:
-                varapesca = VaraPesca(tecla1)
-                if jogador.diamante >= varapesca.preco:
-                    UpdateNome('Jogador', 'Diamante', jogador.diamante - varapesca.preco + 1, jogador.nome)
-                    UpdateNome('VaraPesca', 'Qtde', varapesca.qtde + 2, varapesca.nome)
-                    print(f'Você comprou 1 {varapesca.nome} por {varapesca.preco} diamantes')
-                    sleep(1)
-                else:
-                    print('\033[33mErro: \033[mDiamante insuficiente.')
-
-        elif tecla in '3':
+        elif tecla == 3:
             MelhorarLoja(tecla2)
+
+        elif 0 <= tecla <= 2:
+            lvferramentas = lojas.lv
+            if lvferramentas >= 4 and tecla == 2:
+                if lvferramentas >= 4:
+                    lvferramentas = 2
+                else:
+                    lvferramentas = 1
+
+            if lvferramentas >= 4:
+                lvferramentas = 4
+
+            lista = []
+            print(Linha())
+            for i in range(0, lvferramentas):
+                if tecla == 0:
+                    ferramenta = Picaretas(i)
+                elif tecla == 1:
+                    ferramenta = Machados(i)
+                else:
+                    ferramenta = VaraPesca(i)
+
+                print(f'[{i}] {ferramenta.nome} ({ferramenta.eficiencia} segundos) = {ferramenta.preco} diamantes')
+                lista.append(i)
+            print(f'[{lista[-1] + 1}] Voltar')
+            tecla1 = Tecla('Tecla: ', lista[-1] + 1, lista[-1] + 1)
+            if tecla1 == lista[-1] + 1:
+                pass
+
+            elif tecla1 in lista:
+                if tecla == 0:
+                    ferramenta = Picaretas(tecla1)
+                    nome = 'Picaretas'
+                elif tecla == 1:
+                    ferramenta = Machados(tecla1)
+                    nome = 'Machados'
+                else:
+                    ferramenta = VaraPesca(tecla1)
+                    nome = 'VaraPesca'
+
+                if jogador.diamante >= ferramenta.preco:
+                    UpdateNome('Jogador', 'Diamante', jogador.diamante - ferramenta.preco + 1, jogador.nome)
+                    UpdateNome(nome, 'Qtde', ferramenta.qtde + 2, ferramenta.nome)
+                    print(f'Você comprou 1 {ferramenta.nome} por {ferramenta.preco} diamantes')
+                    sleep(2)
+                else:
+                    print('\033[33mErro: \033[mDinheiro insuficiente.')
+
+            if Interru().interrupitor == 2:
+                break
+
+        if Interru().interrupitor == 2:
+            break
 
 
 def lojapet(tecla2):
+    lojas = Lojas(tecla2)
     while True:
-        lojas = Lojas(tecla2)
-        linha('Lojas de Pets')
-        print('[0] Comprar Pets')
-        print('[1] Melhorar Loja de Pets')
-        print('[C] Voltar')
-        while True:
-            tecla = str(input('Tecla: ')).strip().upper()
-            if tecla in '01C':
-                break
-            else:
-                print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-
-        if tecla in 'C':
+        Titulo('Lojas de Pets')
+        tecla = Opcoes(['Comprar Pets', 'Melhorar Loja de Pets', 'Voltar'], 2)
+        if tecla == 2:
             break
 
-        elif tecla in '0':
-            lista = []
-            print('Pets:')
-            sleep(1)
-            lvmaximo = lojas.lv
-            if lvmaximo > 5:
-                lvmaximo = 5
-            for posmapa in range(0, lvmaximo):
-                pet = Pet(posmapa)
-                print(f'[{posmapa}] {pet.nome} = {pet.preco} diamantes')
-                lista.append(str(posmapa))
+        elif tecla == 1:
+            MelhorarLoja(tecla2)
 
-            print('[C] Voltar')
-            if len(lista) >= 1:
-                while True:
-                    tecla1 = str(input('Tecla: ')).strip().upper()
-                    if tecla1 in lista or tecla1 in 'C':
+        elif tecla == 0:
+            while True:
+                lista = []
+                lvmaximo = lojas.lv
+                if lvmaximo > 5:
+                    lvmaximo = 5
+                print(Linha())
+                for posmapa in range(0, lvmaximo):
+                    pet = Pet(posmapa)
+                    print(f'[{posmapa}] {pet.nome} = {pet.preco} diamantes')
+                    lista.append(posmapa)
+
+                print(f'[{lista[-1] + 1}] Voltar')
+                if len(lista) >= 1:
+                    tecla1 = Tecla('Tecla: ', lista[-1] + 1, lista[-1] + 1)
+                    if tecla1 == lista[-1] + 1:
                         break
-                    else:
-                        print('\033[31mErro:  \033[mOpção inválida, tente novamente')
 
-                if tecla1 in 'C':
-                    pass
-                else:
-                    tecla1 = int(tecla1)
-                    mapa = Mapas(tecla1)
-                    jogador = Jogador()
-                    pet = Pet(tecla1)
-                    mobs = Mobs(mapa.nome, pet.ind)
-                    if mobs.morte >= 650:
-                        if pet.qtde == 0:
-                            if jogador.diamante >= pet.preco:
-                                UpdateNome('Pets', 'Qtde', pet.qtde + 2, pet.qtde)
-                                UpdateNome('Jogador', 'Diamante', jogador.diamante - pet.preco + 1, jogador.nome)
-                                print(f'Você comprou 1 Pet {pet.nome} por {pet.preco} diamantes')
-                                sleep(3)
+                    elif tecla1 in lista:
+                        mapa = Mapas(tecla1)
+                        jogador = Jogador()
+                        pet = Pet(tecla1)
+                        mob = Mobs(mapa.nome, pet.ind)
+                        if mob.morte >= 650:
+                            if pet.qtde == 0:
+                                if jogador.diamante >= pet.preco:
+                                    UpdateNome('Pets', 'Qtde', pet.qtde + 2, pet.qtde)
+                                    UpdateNome('Jogador', 'Diamante', jogador.diamante - pet.preco + 1, jogador.nome)
+                                    print(f'Você comprou 1 Pet {pet.nome} por {pet.preco} diamantes')
+                                    sleep(2)
+                                else:
+                                    print('\033[33mErro: \033[mDiamante insuficiente.')
+                                    sleep(1)
                             else:
-                                print('\033[33mErro: \033[mDiamante insuficiente.')
+                                print('Você já tem esse Pet')
                                 sleep(1)
                         else:
-                            print('Você já tem esse Pet')
+                            print(f'Você precisa matar no mínimo 650 {pet.nome}')
                             sleep(2)
-                    else:
-                        print(f'Você precisa matar no mínimo 650 {pet.nome}')
-                        sleep(2)
-                    for i in lista:
-                        lista.remove(i)
-            else:
-                print('Sem Pets')
-                sleep(1)
 
-        elif tecla in '1':
-            MelhorarLoja(tecla2)
+                    if Interru().interrupitor == 2:
+                        break
+
+        if Interru().interrupitor == 2:
+            break
 
 
 def lojamagia(tecla2):
     while True:
-        linha('Lojas de Magias')
-        print('[0] Comprar Magias')
-        print('[1] Melhorar Loja de Magias')
-        print('[C] Voltar')
-        while True:
-            tecla = str(input('Tecla: ')).strip().upper()
-            if tecla in '01C':
-                break
-            else:
-                print('\033[31mErro:  \033[mOpção inválida, tente novamente')
+        lojas = Lojas(tecla2)
+        Titulo('Lojas de Magias')
+        tecla = Opcoes(['Comprar Magias', 'Melhorar Loja de Magias', 'Voltar'], 2)
 
-        if tecla in 'C':
+        if tecla == 2:
             break
 
-        elif tecla in '0':
-            lojas = Lojas(tecla2)
-            lvmaximo = lojas.lv
-            if lvmaximo > 18:
-                lvmaximo = 18
-            for i in range(0, lvmaximo):
-                magia = Magias(i)
-                print(f'[{i}] {magia.nome} Lv.{magia.lv} ({magia.mana} Mana) ({magia.dano - 10}-{magia.dano}'
-                      f' Dano) = {magia.preco} Diamantes')
-            print('[C] Voltar')
-            tecla1 = 0
+        elif tecla == 1:
+            MelhorarLoja(tecla2)
+
+        elif tecla == 0:
             while True:
-                strtecla = str(input('Tecla: ')).strip().upper()
-                if strtecla.isnumeric():
-                    tecla1 = int(strtecla)
-                    if 0 <= tecla1 < lojas.lv:
-                        break
-                    else:
-                        print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-                else:
-                    if strtecla in 'C':
-                        break
-                    print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-            if strtecla in 'C':
-                pass
-            else:
-                jogador = Jogador()
-                magia = Magias(tecla1)
-                if jogador.lv >= magia.lvmin:
-                    if magia.qtde == 0:
-                        if jogador.diamante >= magia.preco:
-                            UpdateNome('Jogador', 'Diamante', jogador.diamante - magia.preco + 1, jogador.nome)
-                            UpdateNome('Magias', 'Qtde', magia.qtde + 2, magia.nome)
-                            print(f'Você comprou 1 magia de {magia.nome} por {magia.preco} diamantes')
-                            sleep(3)
+                lvmaximo = lojas.lv
+                lista = []
+                if lvmaximo > 18:
+                    lvmaximo = 18
+
+                print(Linha())
+                for i in range(0, lvmaximo):
+                    m = Magias(i)
+                    print(f'[{i}] {m.nome} Lv.{m.lv} ({m.mana} Mana) ({m.dano - 10}-{m.dano} Dano) = {m.preco} Diamantes')
+                    lista.append(i)
+
+                print(f'[{lista[-1] + 1}] Voltar')
+                tecla1 = Tecla('Tecla: ', lista[-1] + 1, lista[-1] + 1)
+
+                if tecla1 == lista[-1] + 1:
+                    break
+
+                elif tecla1 in lista:
+                    jogador = Jogador()
+                    magia = Magias(tecla1)
+                    if jogador.lv >= magia.lvmin:
+                        if magia.qtde == 0:
+                            if jogador.diamante >= magia.preco:
+                                UpdateNome('Jogador', 'Diamante', jogador.diamante - magia.preco + 1, jogador.nome)
+                                UpdateNome('Magias', 'Qtde', magia.qtde + 2, magia.nome)
+                                print(f'Você comprou 1 magia de {magia.nome} por {magia.preco} diamantes')
+                                sleep(2)
+                            else:
+                                print('\033[33mErro: \033[mDiamante insuficiente.')
+                                sleep(1)
                         else:
-                            print('\033[33mErro: \033[mDiamante insuficiente.')
+                            print('\033[33mErro: \033[mVocê já tem essa magia.')
                             sleep(1)
                     else:
-                        print('\033[33mErro: \033[mVocê já tem essa magia.')
-                        sleep(1)
-                else:
-                    print(f'\033[33mErro: \033[mLevel insuficiente. Level Nescessário: {magia.lvmin}')
-                    sleep(2)
-        elif tecla in '1':
-            MelhorarLoja(tecla2)
+                        print(f'\033[33mErro: \033[mLevel insuficiente. Level Nescessário: {magia.lvmin}')
+                        sleep(2)
+
+                if Interru().interrupitor == 2:
+                    break
+
+        if Interru().interrupitor == 2:
+            break
 
 
 def lojaarmas(tecla2):
     while True:
-        linha('Lojas de Armas')
-        print('[0] Comprar Armas')
-        print('[1] Melhorar Loja de Armas')
-        print('[C] Voltar')
-        while True:
-            tecla = str(input('Tecla: ')).strip().upper()
-            if tecla in '01C':
-                break
-            else:
-                print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-        if tecla in 'C':
+        print(Titulo('Loja de Armas'))
+        tecla = Opcoes(['Comprar Armas', 'Melhorar Loja de Armas', 'Voltar'], 2)
+        if tecla == 2:
             break
 
-        elif tecla in '0':
+        elif tecla == 1:
+            MelhorarLoja(tecla2)
+
+        elif tecla == 0:
             lojas = Lojas(tecla2)
             lvmaximo = lojas.lv
             if lvmaximo > 6:
                 lvmaximo = 6
-            for e in range(0, lvmaximo):
-                Espada = Armas(e)
-                print(f'[{e}] {Espada.nome} Lv.{Espada.lv} = ({Espada.dano} Dano) ({Espada.atack} Atack) '
-                      f'({Espada.rec} Rec) {Espada.preco} moedas')
 
-            print('[C] Voltar')
-            tecla1 = 0
             while True:
-                strtecla = str(input('Tecla: ')).strip().upper()
-                if strtecla.isnumeric():
-                    tecla1 = int(strtecla)
-                    if tecla1 < 0 or tecla1 >= lojas.lv:
-                        print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-                    else:
-                        break
-                else:
-                    if strtecla in 'C':
-                        break
-                    print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-            if strtecla in 'C':
-                pass
-            else:
-                Espada = Armas(tecla1)
-                jogador = Jogador()
-                if jogador.lv >= Espada.lv:
-                    if Espada.qtde == 0:
-                        if jogador.dinheiro >= Espada.preco:
-                            UpdateNome('Jogador', 'Dinheiro', jogador.dinheiro - Espada.preco + 1, jogador.nome)
-                            UpdateNome('Armas', 'Qtde', Espada.qtde + 2, Espada.nome)
-                            print(f'Você comprou 1 {Espada.nome} por {Espada.preco} moedas')
-                            sleep(3)
+                lista = []
+                print(Linha())
+                for e in range(0, lvmaximo):
+                    Espada = Armas(e)
+                    print(f'[{e}] {Espada.nome} Lv.{Espada.lv} ({Espada.dano} Atack) ({Espada.rec} Rec) '
+                          f'({Espada.ouro} Ouro) ({Espada.exp} Exp) = {Espada.preco} moedas')
+                    lista.append(e)
+
+                print(f'[{lista[-1] + 1}] Voltar')
+                tecla1 = Tecla('Tecla: ', lista[-1] + 1, lista[-1] + 1)
+                if tecla1 == lista[-1] + 1:
+                    break
+
+                elif tecla in lista:
+                    Espada = Armas(tecla1)
+                    jogador = Jogador()
+                    if jogador.lv >= Espada.lv:
+                        if Espada.qtde == 0:
+                            if jogador.dinheiro >= Espada.preco:
+                                UpdateNome('Jogador', 'Dinheiro', jogador.dinheiro - Espada.preco + 1, jogador.nome)
+                                UpdateNome('Armas', 'Qtde', Espada.qtde + 2, Espada.nome)
+                                print(f'Você comprou 1 {Espada.nome} por {Espada.preco} moedas')
+                                sleep(2)
+                            else:
+                                print('\033[33mErro: \033[mMoedas insuficiente.')
+                                sleep(1)
                         else:
-                            print('\033[33mErro: \033[mMoedas insuficiente.')
+                            print('\033[33mErro: \033[mVocê já tem essa espada.')
                             sleep(1)
                     else:
-                        print('\033[33mErro: \033[mVocê já tem essa espada.')
-                        sleep(1)
-                else:
-                    print(f'\033[33mErro: \033[mLevel insuficiente. Level Nescessário: {Espada.lv}')
-                    sleep(2)
-        elif tecla in '1':
-            MelhorarLoja(tecla2)
+                        print(f'\033[33mErro: \033[mLevel insuficiente. Level Nescessário: {Espada.lv}')
+                        sleep(2)
+
+                if Interru().interrupitor == 2:
+                    break
+
+        if Interru().interrupitor == 2:
+            break
 
 
 def MelhorarLoja(tecla2):
     lojas = Lojas(tecla2)
-    madeiras = Itens(ind='0')
-    pedras = Itens(ind='1')
-    peixes = Itens(ind='2')
-    couros = Itens(ind='3')
+    madeiras = Itens(ind=0)
+    pedras = Itens(ind=1)
+    peixes = Itens(ind=2)
+    couros = Itens(ind=3)
     print(f'Loja de {lojas.nome} Level: {lojas.lv}')
     print(f'[0] Melhorar Loja = {madeiras.qtde}/{lojas.customadeiras} Madeiras, {pedras.qtde}/'
           f'{lojas.custopedras} Pedras', end='')
@@ -2112,27 +1988,27 @@ def MelhorarLoja(tecla2):
         print(f', {couros.qtde}/{lojas.custocouros} Couros')
     else:
         print()
-    print('[C] Voltar')
-    while True:
-        tecla1 = str(input('Tecla: ')).strip().upper()
-        if tecla1 in '0C':
-            break
-        else:
-            print('\033[31mErro:  \033[mOpção inválida, tente novamente')
-    if tecla1 in 'C':
+    print('[1] Voltar')
+    tecla = Tecla('Tecla: ', 1, 1)
+
+    if tecla == 1:
         pass
-    elif tecla1 in '0':
+
+    elif tecla == 0:
         while True:
             if tecla2 == 0:
                 if peixes.qtde >= lojas.custopeixes:
                     pass
+
                 else:
                     print('\033[33mErro: \033[mPeixes insuficiente.')
                     sleep(2)
                     break
+
             if tecla2 == 3:
                 if couros.qtde >= lojas.custocouros:
                     pass
+
                 else:
                     print('\033[33mErro: \033[mCouros insuficiente.')
                     sleep(2)
@@ -2162,19 +2038,8 @@ def MelhorarLoja(tecla2):
             else:
                 print('\033[33mErro: \033[mMadeiras insuficiente.')
                 sleep(2)
+
             break
 
 
-def Mortesmobs():
-    for num in range(0, 7):
-        mapas = Mapas(num)
-        for pos in range(0, mapas.qtdemob):
-            kill = Mobs(mapas.nome, pos)
-            if kill.nome in ['Peixes', 'Pedras', 'Madeiras']:
-                pass
-            else:
-                if kill.morte > 0:
-                    print(f'{kill.nome} = {kill.morte}')
-
-
-Connecte()
+Connect()
