@@ -33,13 +33,13 @@ def UpdateNome(update, Set, Igual, Where):
     banco.commit()
 
 
-def Linha(t=30):
+def Linha(t=40):
     return '-' * t
 
 
 def Titulo(text):
     print(Linha())
-    print(f'{text:^30}')
+    print(f'{text:^40}')
     print(Linha())
 
 
@@ -68,8 +68,8 @@ def Tecla(text, saida, maximo):
             desligado = 2
             ligado = 1
             print('\n\033[31mErro: \033[mCaixa de entrada interrompida')
-            Update('Interrupitor', 'Interrupyter', desligado, ligado)
             sleep(1)
+            Update('Interrupitor', 'Interrupyter', desligado, ligado)
             return saida
 
 
@@ -230,6 +230,7 @@ def CriandoBD(cursor, banco):
 
     # Fragmentos
     cursor.execute('CREATE TABLE Fragmentos (NomeC integer, Nome text, Qtde integer)')
+
     cursor.execute("INSERT INTO Fragmentos VALUES('Fragmento de Hit', 'FragmentoHit', 1)")
     cursor.execute("INSERT INTO Fragmentos VALUES('Fragmento de Ar', 'FragmentoAr', 1)")
     cursor.execute("INSERT INTO Fragmentos VALUES('Fragmento de Psíquico', 'FragmentoPsiquico', 1)")
@@ -842,12 +843,12 @@ def Espadas():
     while True:
         Titulo('Armas')
         tecla2 = Opcoes(['Escolher Arma', 'Melhorar Arma', 'Voltar'], 2)
-        lista = []
         if tecla2 == 2:
             break
 
         elif tecla2 == 0 or tecla2 == 1:
             while True:
+                lista = []
                 for pos in range(0, 7):
                     espadas = Armas(pos)
                     fragmentos = Fragmentos(pos)
@@ -855,14 +856,14 @@ def Espadas():
                         lista.append(pos)
                         if tecla2 == 0:
                             if len(lista) == 1:
-                                print('Usar qual Espada durante a batalha')
+                                Titulo('Usar Qual Espada Durante A Batalha')
                             print(f'[{pos}] {espadas.nome} Lv.{espadas.lv} = ({espadas.dano} Atack) '
                                   f'({espadas.rec} Rec) ({espadas.ouro} Ouro) ({espadas.exp} Exp)')
                             sleep(1)
                         elif tecla2 == 1:
                             if len(lista) == 1:
-                                print('Melhorar qual Espada')
-                            print(f'[{pos}] {espadas.nome} Lv.{espadas.lv} ({espadas.dano} Atack)'
+                                Titulo('Melhorar Qual Espada')
+                            print(f'[{pos}] {espadas.nome} Lv.{espadas.lv} ({espadas.dano} Atack) '
                                   f'({espadas.rec} Rec) ({espadas.ouro} Ouro) ({espadas.exp} Exp) = 1 '
                                   f'{fragmentos.nomec}')
                             sleep(0.5)
@@ -888,43 +889,45 @@ def Espadas():
                         sleep(2)
 
                     elif tecla2 == 1 and fragmentos.qtde >= 1:
-                        tecla3 = Opcoes(['Atack', 'Rec', 'Ouro', 'Exp', 'Voltar'], 5)
+                        Titulo('Melhorar Qual Atributo Da Espada')
+                        tecla3 = Opcoes(['Atack', 'Rec', 'Ouro', 'Exp', 'Voltar'], 4)
                         armaj = ArmaJogador()
-                        Titulo('MELHORIA DA ESPADA')
-                        espadas = Armas(escolha)
-                        print(f'Você melhorou a {espadas.nome}', end=':')
+                        if tecla3 == 4:
+                            pass
+
+                        elif Interru().interrupitor == 2:
+                            break
+
+                        else:
+                            print(Linha())
+                            espadas = Armas(escolha)
+                            print(f'Você melhorou a {espadas.nome}:')
 
                         if tecla3 == 0:
                             UpdateNome('Armas', 'Dano', espadas.dano + 1, espadas.nome)
                             if armaj.nome not in 'vazio':
                                 UpdateNome('EspadaJogador', 'Dano', armaj.dano + 1, armaj.nome)
-                            print(f'Dano {espadas.dano}')
+                            print(f'Dano {espadas.dano + 1}')
 
                         elif tecla3 == 1:
                             UpdateNome('Armas', 'Rec', espadas.rec + 1, espadas.nome)
                             if armaj.nome not in 'vazio':
                                 UpdateNome('EspadaJogador', 'Rec', armaj.rec + 1, armaj.nome)
-                            print(f'Rec {espadas.rec}')
+                            print(f'Rec {espadas.rec + 1}')
 
                         elif tecla3 == 2:
                             UpdateNome('Armas', 'Ouro', espadas.ouro + 1, espadas.nome)
                             if armaj.nome not in 'vazio':
                                 UpdateNome('EspadaJogador', 'Ouro', armaj.ouro + 1, armaj.nome)
-                            print(f'Ouro {espadas.ouro}')
+                            print(f'Ouro {espadas.ouro + 1}')
 
                         elif tecla3 == 3:
                             UpdateNome('Armas', 'Exp', espadas.exp + 1, espadas.nome)
                             if armaj.nome not in 'vazio':
                                 UpdateNome('EspadaJogador', 'Exp', armaj.exp + 1, armaj.nome)
-                            print(f'Exp {espadas.exp}')
+                            print(f'Exp {espadas.exp + 1}')
 
-                        elif tecla3 == 4:
-                            break
-
-                        if Interru().interrupitor == 2:
-                            break
-
-                        else:
+                        elif tecla3 != 4:
                             UpdateNome('Fragmentos', 'Qtde', fragmentos.qtde, fragmentos.nome)
                             UpdateNome('Armas', 'Lv', espadas.lv + 1, espadas.nome)
                             if armaj.nome not in 'vazio':
@@ -1077,7 +1080,7 @@ def mobs(idlocal):
                 sleep(3)
 
                 print(f'Jogador: {jogador.nome} Lv.{jogador.lv}\nHP: {jogador.vida}/{jogador.hp} \nMana: '
-                      f'{jogador.mana} {jogador.qtdemana} \nDano: {atack - 4}-{atack}\nDefesa: {atributo.defesa +
+                      f'{jogador.mana}/{jogador.qtdemana} \nDano: {atack - 4}-{atack}\nDefesa: {atributo.defesa +
                                                                                                 skill.defesa}')
                 if Espada.nome not in 'vazio' and idlocal == Espada.id:
                     print(f'Rec: {Espada.rec}')
@@ -1113,7 +1116,7 @@ def mobs(idlocal):
 
                         HPanimal, Danoanimal = infobatalha(local.nome, idlocal, idmob)
                         batalha(local.nome, idlocal, idmob, HPanimal, Danoanimal, atack)
-                        mortemob(local, idlocal, idmob, moeda, exp)
+                        mortemob(local.nome, idlocal, idmob, moeda, exp)
 
                         morte = Morte()
                         if morte.mortejogador == 2:
@@ -1273,7 +1276,7 @@ def batalha(local, idlocal, idmob, HPanimal, Danoanimal, atack):
                 PotMana = PocoesMana(PotManaJg.id)
                 if PotMana.qtde > 0 and jogador.mana <= PotManaJg.uso:
                     print(f'{jogador.nome} usou uma {PotManaJg.nome} (+{PotMana.rec} Mana)')
-                    sleep(2)
+                    sleep(1)
                     jogador = Jogador()
                     if PotMana.rec + jogador.mana >= jogador.qtdemana:
                         UpdateNome('Jogador', 'Mana', jogador.qtdemana, jogador.nome)
@@ -1302,14 +1305,14 @@ def batalha(local, idlocal, idmob, HPanimal, Danoanimal, atack):
                         UpdateNome('MagiaJogador', 'Tempo', magia.tempo + 1, magia.nome)
                         jogador = Jogador()
                         print(f'{jogador.nome}: {jogador.mana}/{jogador.qtdemana} Mana')
-                        sleep(3)
+                        sleep(2)
 
                         if HPanimal <= 0:
                             print('-=' * 10)
                             mapas = Mapas(idlocal)
                             kill = Mobs(mapas.nome, idmob)
                             print(f'{jogador.nome} matou {kill.morte + 1}: {mob.nome}')
-                            sleep(2)
+                            sleep(1)
                             break
                         print(f'{mob.nome}: {HPanimal}/{Vidaanimal}HP')
 
@@ -1320,6 +1323,7 @@ def batalha(local, idlocal, idmob, HPanimal, Danoanimal, atack):
                         UpdateNome('MagiaJogador', 'Tempo', magia.tempo + 1, magia.nome)
                     else:
                         UpdateNome('MagiaJogador', 'Tempo', 1, magia.nome)
+                sleep(1)
 
             elif o == 1:
                 mob = Mobs(local, idmob)
@@ -1356,7 +1360,7 @@ def batalha(local, idlocal, idmob, HPanimal, Danoanimal, atack):
                     PotHP = PocoesHP(PotHPjg.id)
                     print(f'Quantidade de {PotHPjg.nome}: {PotHP.qtde}')
                     sleep(2)
-                sleep(5)
+                sleep(1)
 
             elif o == 2:
                 morte = Morte()
@@ -1581,10 +1585,10 @@ def atributos():
             else:
                 print('\033[33mErro: \033[mPontos insuficiente.')
 
-            if Interru().interrupitor in '2':
+            if Interru().interrupitor == 2:
                 break
 
-        if Interru().interrupitor in '2':
+        if Interru().interrupitor == 2:
             break
 
 
@@ -1617,6 +1621,7 @@ def habilidades():
                     for i in range(skill.tempoatack, -1, -1):
                         skill = Skill()
                         print(f'\r{skill.tempoatack}', end='')
+
                         Update('Habilidades', 'TempoAtack', skill.tempoatack - 1, skill.tempoatack)
                         sleep(1)
 
@@ -1634,6 +1639,7 @@ def habilidades():
                     for i in range(skill.tempodefesa, -1, -1):
                         skill = Skill()
                         print(f'\r{skill.tempodefesa}', end='')
+
                         Update('Habilidades', 'TempoDefese', skill.tempodefesa - 1, skill.tempodefesa)
                         sleep(1)
 
