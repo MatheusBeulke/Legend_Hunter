@@ -349,7 +349,7 @@ def CriandoBD(cursor, banco):
     # Poções
     cursor.execute('CREATE TABLE Bolsa (Nome text, Rec integer,Qtde integer, Preco integer)')
 
-    cursor.execute("INSERT INTO Bolsa VALUES('PoçãoPequena', 20, 1, 50)")
+    cursor.execute("INSERT INTO Bolsa VALUES('PoçãoPequena', 20, 10, 50)")
     cursor.execute("INSERT INTO Bolsa VALUES('PoçãoMédia', 50, 1, 100)")
     cursor.execute("INSERT INTO Bolsa VALUES('PoçãoGrande', 100, 1, 200)")
     cursor.execute("INSERT INTO Bolsa VALUES('PoçãoGigante', 200, 1, 400)")
@@ -1079,9 +1079,9 @@ def mobs(idlocal):
                 print(Linha())
                 sleep(3)
 
-                print(f'Jogador: {jogador.nome} Lv.{jogador.lv}\nHP: {jogador.vida}/{jogador.hp} \nMana: '
-                      f'{jogador.mana}/{jogador.qtdemana} \nDano: {atack - 4}-{atack}\nDefesa: {atributo.defesa +
-                                                                                                skill.defesa}')
+                print(f'Jogador: {jogador.nome} Lv.{jogador.lv}\nHP: {jogador.vida}/{jogador.hp} \nMana: {jogador.mana}'
+                      f'/{jogador.qtdemana} \nDano: {atack - 4}-{atack}\nDefesa: {atributo.defesa + skill.defesa}')
+
                 if Espada.nome not in 'vazio' and idlocal == Espada.id:
                     print(f'Rec: {Espada.rec}')
 
